@@ -1,0 +1,40 @@
+{
+  "client_id": "atacama",
+  "client_name": "Atacama Digital",
+  "kommo_domain": "atacamadigital.kommo.com",
+  "coords": "8\u00b002'36.6\" S / 34\u00b053'53.5\" W",
+  "meta_vendas_mes": 7,
+  "ticket_benchmark": 2500,
+  "revenue_alvo": 17500,
+  "leads_meta_mes": 227,
+  "benchmarks": {
+    "lead_mql": 15.0,
+    "mql_reuniao": 59.7,
+    "reuniao_proposta": 69.6,
+    "proposta_venda": 50.0
+  },
+  "stage_mapping": {
+    "entrada": ["Solicitações"],
+    "em_contato": ["Em Contato"],
+    "mql": ["Qualificado", "MQL"],
+    "reuniao": ["Reunião Agendada"],
+    "proposta": ["Proposta Enviada"],
+    "aguardando": ["Aguardando Pagamento"],
+    "won": ["Comprou"],
+    "lost": ["Perdeu"]
+  },
+  "responsabilidade": {
+    "entrada": "MKT",
+    "mql": "MKT",
+    "reuniao": "COM",
+    "proposta": "COM",
+    "aguardando": "COM",
+    "won": "COM"
+  },
+  "regras_decisao": {
+    "dias_sem_atividade_urgente": 20,
+    "dias_sem_atividade_perder": 30,
+    "tentativas_max_sem_resposta": 3,
+    "cadencia_atraso_dias": 3
+  }
+}

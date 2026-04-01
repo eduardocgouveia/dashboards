@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipeline Review | Atacama Digital</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@500;600;700&family=Inter+Tight:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #000000;
+    --silver: #DBDCDD;
+    --white: #FFFFFF;
+    --offwhite: #F5F5F5;
+    --gray-95: #0A0A0A;
+    --gray-90: #1A1A1A;
+    --gray-80: #222222;
+    --gray-70: #3A3A3A;
+    --gray-60: #6B6B6B;
+    --gray-50: #959595;
+    --gray-40: #A0A0A0;
+    --gray-30: #C4C4C4;
+    --gray-10: #EEEEEE;
+    --cosmos-bg: #03070A;
+    --cosmos-red: #9C1F27;
+    --cosmos-red-glow: #FC7D8E;
+    --cosmos-blue-deep: #1B68B8;
+    --cosmos-blue-mid: #5E97E4;
+    --cosmos-blue-light: #9DB7F0;
+    --cosmos-purple: #9E8FD0;
+    --orange-desert: #E13F07;
+    --chart-blue: #3B82F6;
+    --chart-green: #10B981;
+    --chart-amber: #F59E0B;
+    --chart-purple: #8B5CF6;
+    --chart-red: #EF4444;
+    --alert-red-bg: rgba(239,68,68,0.08);
+    --alert-red-border: rgba(239,68,68,0.2);
+    --alert-red-text: #F87171;
+    --alert-amber-bg: rgba(245,158,11,0.08);
+    --alert-amber-border: rgba(245,158,11,0.2);
+    --alert-amber-text: #FBBF24;
+    --alert-green-bg: rgba(16,185,129,0.08);
+    --alert-green-border: rgba(16,185,129,0.2);
+    --alert-green-text: #34D399;
+    --alert-blue-bg: rgba(59,130,246,0.08);
+    --alert-blue-border: rgba(59,130,246,0.2);
+    --alert-blue-text: #60A5FA;
+    --border-dark: rgba(255,255,255,0.16);
+    --border-light: rgba(0,0,0,0.12);
+    --muted-dark: #A0A0A0;
+    --muted-light: #6B6B6B;
+  }
+
+  body {
+    font-family: 'Inter Tight', sans-serif;
+    background: var(--black);
+    color: var(--white);
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .section-dark { background: var(--black); color: var(--white); --card-bg: var(--gray-90); --card-border: var(--border-dark); --text-muted: var(--muted-dark); --text-primary: var(--white); --section-border: var(--border-dark); }
+  .section-silver { background: var(--silver); color: var(--black); --card-bg: var(--white); --card-border: var(--border-light); --text-muted: var(--muted-light); --text-primary: var(--black); --section-border: var(--border-light); }
+  .section-cosmos { background: var(--cosmos-bg); color: var(--white); --card-bg: rgba(26,26,26,0.6); --card-border: rgba(255,255,255,0.1); --text-muted: var(--cosmos-blue-light); --text-primary: var(--white); --section-border: rgba(255,255,255,0.08); }
+
+  .section-inner { position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+  .section-pad { padding: 64px 0; }
+  .section-pad-sm { padding: 48px 0; }
+
+  .grid-lines { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  .grid-lines .vl { position: absolute; top: 0; bottom: 0; width: 1px; }
+  .grid-lines .hl { position: absolute; left: 0; right: 0; height: 1px; }
+  .grid-lines .dot { position: absolute; width: 7px; height: 7px; border-radius: 50%; }
+  .section-dark .grid-lines .vl, .section-dark .grid-lines .hl { background: rgba(255,255,255,0.05); }
+  .section-dark .grid-lines .dot { background: rgba(255,255,255,0.12); }
+  .section-silver .grid-lines .vl, .section-silver .grid-lines .hl { background: rgba(0,0,0,0.06); }
+  .section-silver .grid-lines .dot { background: rgba(0,0,0,0.1); }
+  .section-cosmos .grid-lines .vl, .section-cosmos .grid-lines .hl { background: rgba(94,151,228,0.08); }
+  .section-cosmos .grid-lines .dot { background: rgba(94,151,228,0.15); }
+  .gl { left: max(32px, calc((100% - 1280px)/2)); }
+  .gr { right: max(32px, calc((100% - 1280px)/2)); }
+  .dl { left: max(29px, calc((100% - 1280px)/2 - 3px)); }
+  .dr { right: max(29px, calc((100% - 1280px)/2 - 3px)); }
+
+  .hero { position: relative; min-height: 260px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 80%, rgba(225,63,7,0.10) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(156,31,39,0.08) 0%, transparent 40%), radial-gradient(ellipse at 50% 50%, rgba(27,104,184,0.06) 0%, transparent 60%), var(--black); }
+  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 120px 120px; }
+  .hero-content { position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; padding: 40px 32px 32px; width: 100%; }
+  .eyebrow { font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.25em; color: var(--text-muted, var(--gray-40)); margin-bottom: 8px; }
+  .hero h1 { font-family: 'Cormorant Unicase', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 600; letter-spacing: -0.025em; line-height: 0.9; color: var(--white); margin-bottom: 16px; }
+  .hero-meta { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 8px; }
+  .hero-meta .info { font-size: 14px; color: var(--gray-40); }
+  .hero-meta .info strong { color: var(--white); font-weight: 600; }
+  .hero-meta .coords { font-size: 10px; letter-spacing: 0.15em; color: var(--gray-60); }
+
+  .alert-bar { border-radius: 12px; padding: 14px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; }
+  .alert-danger { background: var(--alert-red-bg); border: 1px solid var(--alert-red-border); color: var(--alert-red-text); }
+  .alert-warning { background: var(--alert-amber-bg); border: 1px solid var(--alert-amber-border); color: var(--alert-amber-text); }
+  .alert-success { background: var(--alert-green-bg); border: 1px solid var(--alert-green-border); color: var(--alert-green-text); }
+  .alert-info { background: var(--alert-blue-bg); border: 1px solid var(--alert-blue-border); color: var(--alert-blue-text); }
+  .alert-bar .count { padding: 2px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; margin-left: auto; }
+  .alert-danger .count { background: var(--chart-red); color: var(--white); }
+  .alert-warning .count { background: var(--chart-amber); color: var(--black); }
+  .alert-info .count { background: var(--chart-blue); color: var(--white); }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 32px; }
+  .kpi-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; text-align: center; transition: transform 0.2s; }
+  .kpi-card:hover { transform: translateY(-2px); }
+  .kpi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+  .kpi-card .value { font-size: 28px; font-weight: 800; letter-spacing: -0.025em; color: var(--text-primary); }
+  .kpi-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .kpi-card .benchmark { font-size: 11px; color: var(--cosmos-blue-mid); margin-top: 2px; }
+  .v-blue { color: var(--cosmos-blue-mid) !important; }
+  .v-red { color: var(--chart-red) !important; }
+  .v-green { color: var(--chart-green) !important; }
+  .v-amber { color: var(--chart-amber) !important; }
+  .kpi-highlight { border-color: var(--cosmos-blue-mid) !important; }
+  .kpi-danger { border-color: var(--chart-red) !important; }
+  .kpi-success { border-color: var(--chart-green) !important; }
+
+  .glass-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .glass-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary); }
+  .glass-card .subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+  .resp-pill { display: inline-block; padding: 3px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .resp-mkt { background: rgba(139,92,246,0.12); color: #A78BFA; }
+  .resp-com { background: rgba(59,130,246,0.12); color: #60A5FA; }
+
+  .funnel-row { display: grid; grid-template-columns: 160px 90px 70px 70px 70px 1fr 80px; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--section-border); font-size: 13px; }
+  .funnel-row:last-child { border-bottom: none; }
+  .funnel-row.fh { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 500; padding-bottom: 8px; }
+  .funnel-row .sn { font-weight: 600; color: var(--text-primary); }
+  .funnel-row .cr { color: var(--text-muted); text-align: center; }
+  .funnel-row .ac { text-align: center; font-weight: 700; color: var(--text-primary); }
+  .funnel-row .nd { text-align: center; font-weight: 600; color: var(--cosmos-blue-mid); }
+  .funnel-row .nd-pro { text-align: center; font-weight: 600; color: var(--chart-amber); font-size: 12px; }
+
+  .progress-track { height: 22px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+  .section-silver .progress-track { background: rgba(0,0,0,0.06); }
+  .progress-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; min-width: 28px; }
+  .pf-great { background: var(--chart-green); color: var(--black); }
+  .pf-ok { background: var(--cosmos-blue-mid); color: var(--white); }
+  .pf-behind { background: var(--chart-amber); color: var(--black); }
+  .pf-crit { background: var(--chart-red); color: var(--white); }
+
+  .funnel-status { text-align: center; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .fs-great { color: var(--chart-green); }
+  .fs-ok { color: var(--cosmos-blue-mid); }
+  .fs-behind { color: var(--chart-amber); }
+  .fs-crit { color: var(--chart-red); }
+
+  .funnel-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--section-border); }
+  .fm { text-align: center; }
+  .fm .fl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+  .fm .fv { font-size: 22px; font-weight: 800; letter-spacing: -0.025em; color: var(--text-primary); }
+  .fm .fs { font-size: 11px; color: var(--text-muted); }
+
+  .evo-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+  .evo-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 500; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--section-border); }
+  .evo-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--silver); }
+  .evo-table td.mn { font-weight: 600; color: var(--text-primary); }
+  .evo-table .dn { color: var(--text-muted); }
+
+  .compliance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .compliance-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; }
+  .ci-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .ci-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .ci-score { font-size: 18px; font-weight: 800; color: var(--cosmos-blue-mid); }
+  .ci-weight { font-size: 11px; color: var(--text-muted); }
+  .compliance-bar { height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+  .section-dark .compliance-bar { background: rgba(255,255,255,0.06); }
+  .compliance-bar-fill { height: 100%; background: linear-gradient(90deg, var(--cosmos-blue-deep), var(--cosmos-blue-mid)); border-radius: 3px; }
+  .compliance-checklist { list-style: none; }
+  .compliance-checklist li { font-size: 12px; color: var(--text-muted); padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+
+  .lead-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
+  .lead-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 500; text-align: left; padding: 6px 10px; }
+  .lead-table td { padding: 10px; font-size: 13px; background: var(--card-bg); vertical-align: middle; color: var(--text-primary); }
+  .lead-table tr td:first-child { border-radius: 8px 0 0 8px; }
+  .lead-table tr td:last-child { border-radius: 0 8px 8px 0; }
+  .lead-name { font-weight: 600; font-size: 13px; }
+  .lead-company { font-size: 11px; color: var(--text-muted); }
+  .lead-phone { font-size: 11px; color: var(--text-muted); opacity: 0.6; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin: 1px 2px; background: rgba(255,255,255,0.07); color: var(--gray-30); }
+  .section-silver .tag { background: rgba(0,0,0,0.05); color: var(--gray-60); }
+  .tag-red { background: var(--alert-red-bg); color: var(--alert-red-text); border: 1px solid var(--alert-red-border); }
+  .tag-amber { background: var(--alert-amber-bg); color: var(--alert-amber-text); border: 1px solid var(--alert-amber-border); }
+  .tag-blue { background: var(--alert-blue-bg); color: var(--alert-blue-text); border: 1px solid var(--alert-blue-border); }
+  .tag-green { background: var(--alert-green-bg); color: var(--alert-green-text); border: 1px solid var(--alert-green-border); }
+
+  .decision { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 9999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .d-perder { background: var(--alert-red-bg); color: var(--alert-red-text); border: 1px solid var(--alert-red-border); }
+  .d-agir { background: var(--alert-blue-bg); color: var(--alert-blue-text); border: 1px solid var(--alert-blue-border); }
+  .d-standby { background: rgba(255,255,255,0.05); color: var(--gray-40); border: 1px solid rgba(255,255,255,0.08); }
+  .d-urgente { background: var(--chart-red); color: var(--white); }
+  .section-silver .d-standby { background: rgba(0,0,0,0.04); color: var(--gray-60); border-color: rgba(0,0,0,0.08); }
+
+  .days-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+  .days-ok { background: var(--alert-green-bg); color: var(--alert-green-text); }
+  .days-warn { background: var(--alert-amber-bg); color: var(--alert-amber-text); }
+  .days-danger { background: var(--alert-red-bg); color: var(--alert-red-text); }
+
+  .action-text { font-size: 12px; color: var(--text-muted); max-width: 220px; line-height: 1.4; }
+  .cadence-status { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted); }
+  .cadence-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .c-ok { background: var(--chart-green); }
+  .c-late { background: var(--chart-amber); }
+  .c-dead { background: var(--chart-red); }
+
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .chart-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; }
+  .chart-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); }
+  .chart-container { position: relative; height: 220px; }
+
+  .summary-list { list-style: none; }
+  .summary-list li { padding: 8px 0; border-bottom: 1px solid var(--section-border); font-size: 13px; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+  .summary-list li:last-child { border-bottom: none; }
+  .pdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .pdot-red { background: var(--chart-red); }
+  .pdot-amber { background: var(--chart-amber); }
+  .pdot-blue { background: var(--chart-blue); }
+  .pdot-green { background: var(--chart-green); }
+
+  .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .status-metric { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; text-align: center; }
+  .sm-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; }
+  .sm-real { font-size: 20px; font-weight: 800; color: var(--text-primary); }
+  .sm-vs { font-size: 12px; color: var(--cosmos-blue-mid); margin-top: 4px; }
+  .bench-bar { display: flex; gap: 6px; align-items: flex-end; height: 40px; margin-top: 8px; justify-content: center; }
+  .bench-bar .bar { width: 20px; border-radius: 3px 3px 0 0; min-height: 4px; }
+  .bar-real { background: var(--cosmos-blue-mid); }
+  .bar-bench { background: var(--gray-70); }
+  .section-silver .bar-bench { background: var(--gray-30); }
+
+  .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .sec-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+  .badge { font-size: 10px; padding: 3px 10px; border-radius: 9999px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge-default { background: rgba(255,255,255,0.07); color: var(--gray-30); }
+  .section-silver .badge-default { background: rgba(0,0,0,0.05); color: var(--gray-60); }
+  .badge-red { background: var(--alert-red-bg); color: var(--alert-red-text); }
+  .badge-amber { background: var(--alert-amber-bg); color: var(--alert-amber-text); }
+  .badge-blue { background: var(--alert-blue-bg); color: var(--alert-blue-text); }
+  .badge-green { background: var(--alert-green-bg); color: var(--alert-green-text); }
+  .badge-purple { background: rgba(139,92,246,0.1); color: #A78BFA; }
+
+  .footer { text-align: center; padding: 48px 32px; color: var(--gray-50); font-size: 12px; background: var(--black); border-top: 1px solid var(--border-dark); }
+  .footer .coords { font-size: 10px; letter-spacing: 0.15em; color: var(--gray-70); margin-top: 8px; }
+
+  .action-checklist { list-style: none; }
+  .action-checklist li { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; color: var(--silver); line-height: 1.5; }
+  .action-checklist li:last-child { border-bottom: none; }
+  .action-check { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--gray-60); cursor: pointer; flex-shrink: 0; margin-top: 2px; transition: all 0.15s; }
+  .action-check.checked { background: var(--chart-green); border-color: var(--chart-green); }
+  .action-priority { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 9999px; flex-shrink: 0; }
+  .ap-urgente { background: var(--chart-red); color: var(--white); }
+  .ap-importante { background: var(--alert-amber-bg); color: var(--alert-amber-text); border: 1px solid var(--alert-amber-border); }
+  .ap-normal { background: var(--alert-blue-bg); color: var(--alert-blue-text); border: 1px solid var(--alert-blue-border); }
+
+  section[id] { scroll-margin-top: 56px; }
+
+  .sticky-nav { position: sticky; top: 0; z-index: 100; background: rgba(0,0,0,0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); transition: box-shadow 0.2s; }
+  .sticky-nav.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+  .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; gap: 6px; height: 48px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+  .nav-inner::-webkit-scrollbar { display: none; }
+  .nav-inner a { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray-40); text-decoration: none; padding: 6px 12px; border-radius: 6px; white-space: nowrap; transition: all 0.15s; }
+  .nav-inner a:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+  .nav-inner a.nav-alert { color: var(--chart-red); }
+
+  .loading-state { display: flex; align-items: center; justify-content: center; min-height: 400px; flex-direction: column; gap: 16px; }
+  .loading-state .spinner { width: 32px; height: 32px; border: 3px solid var(--gray-70); border-top-color: var(--cosmos-blue-mid); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-state { color: var(--chart-red); text-align: center; padding: 48px; }
+
+  @media (max-width: 1024px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .charts-row, .compliance-grid { grid-template-columns: 1fr; }
+    .status-grid { grid-template-columns: repeat(2, 1fr); }
+    .section-inner { padding: 0 20px; }
+    .hero-content { padding: 32px 20px; }
+    .funnel-row { grid-template-columns: 120px 70px 50px 50px 50px 1fr 60px; font-size: 11px; }
+  }
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .lead-table, .evo-table { display: block; overflow-x: auto; }
+    .status-grid, .funnel-summary { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 2rem; }
+    .hero-meta { flex-direction: column; align-items: flex-start; }
+    .nav-inner { gap: 4px; }
+    .nav-inner a { font-size: 10px; padding: 5px 8px; letter-spacing: 0.04em; }
+    .section-pad { padding: 48px 0; }
+    .section-pad-sm { padding: 32px 0; }
+    .hero { min-height: 200px; }
+  }
+  @media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .nav-inner a { font-size: 9px; padding: 4px 6px; }
+    .section-inner { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading-state">
+  <div class="spinner"></div>
+  <div style="color:var(--gray-40);font-size:13px;">Carregando dados do pipeline...</div>
+</div>
+
+<div id="app" style="display:none;">
+
+<!-- NAV -->
+<nav class="sticky-nav" id="mainNav">
+  <div class="nav-inner">
+    <a href="#top" style="flex-shrink:0;display:flex;align-items:center;padding:0;margin-right:12px;text-decoration:none;">
+      <svg style="height:14px;fill:var(--gray-50);cursor:pointer;transition:fill 0.15s;" onmouseover="this.style.fill='#fff'" onmouseout="this.style.fill='#959595'" viewBox="0 0 10180 1240" xmlns="http://www.w3.org/2000/svg"><path d="m2005.83 42.13-307.87 1154h217.33L2217.95 61.68l302.65 1134.45h217.34l-307.87-1154ZM333.85 42.13l-307.87 1154h217.34L545.97 61.68l302.66 1134.45h217.33L758.1 42.13ZM4201.22 42.13l-307.87 1154h217.34L4413.34 61.68 4716 1196.13h217.34l-307.88-1154ZM1789.08 42.13H986.93v194.33h292.17v959.67h216.6V236.46h293.38ZM6686.55 42.13l-307.87 1154h217.34L6898.68 61.68l302.65 1134.45h217.34l-307.87-1154ZM5666.44 672.48 5490.98 42.16l-424.07-.03v1154h216.61V79.64l170.24 611.58h425.36l170.24-611.58v1116.49h216.6v-1154l-424.06.03ZM3524.06 972.73c-57.57 37.2-122.85 54.25-184.81 54.25-70.32 0-135.16-17.8-192.72-52.88-118.62-72.31-186.66-201.97-186.66-355.72 0-217.76 130.5-319.58 186.6-353.25 57.61-34.59 122.47-52.12 192.78-52.12 6.32 0 98.34.96 184.8 52.06 117.68 69.54 140.24 189.95 140.24 189.95h216.55c0-.02-8.62-118.66-96.5-230.45C3682.14 94.57 3519.91 20 3339.24 20c-108.53 0-208.94 26.43-298.4 78.57-85.13 49.6-156.39 120.44-206.07 204.88-54.76 93.06-82.53 199.02-82.53 314.93 0 220.57 107.87 415.8 288.55 522.21 89.45 52.7 189.87 79.41 298.46 79.41 177.7 0 341.62-77.36 443.55-210.36 87.52-114.2 101.64-240.9 101.64-240.9h-218.88s-21.46 126.44-141.5 204M7747.83 467.71h-75.22v-346.3h77.6c144.03 0 156.54 111.7 156.54 172.81 0 164.66-109.64 173.5-158.92 173.5m7.8-425.6h-174.5V547h171.45c227.24 0 244.64-191.38 244.64-252.78 0-130.66-67.38-252.1-241.6-252.1M8074.88 547h91.49V42.13h-91.49ZM8487.66 354.54h119.47c-.28 29.05-15.86 117.24-128.28 117.24-38.56 0-142.65-16.75-142.65-177.56 0-112.15 59.46-176.87 142.65-176.87 69.87 0 109.38 42.84 121.65 86.06h92.84c-10.4-67.21-72.65-168.06-215.84-168.06-77.49 0-233.13 45.2-233.13 259.9 0 75 35.52 258.53 233.8 258.53 62.3 0 108.1-23.46 144.01-65.74h2.37l6.78 58.96h65.74V283.04h-209.41ZM8776.42 547h91.49V42.13h-91.49ZM9338.97 42.13h-402.54v76.57h156.2V547h90.47V118.7h155.87ZM9477.73 349.12l68-203.3h4.07l68.34 203.3Zm14.13-307L9313.62 547h97.93l41.7-124.7h189.5l41.9 124.7h97.6l-177.9-504.87ZM9931.4 470.42V42.12h-91.49V547h314.11v-76.58Z"/></svg>
+    </a>
+    <a href="#alertas" class="nav-alert">Alertas</a>
+    <a href="#funil">Funil</a>
+    <a href="#performance">Performance</a>
+    <a href="#compliance">Compliance</a>
+    <a href="#plano-acao">Plano de Acao</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#marketing">Marketing</a>
+    <a href="#status">Status</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="top" class="hero section-dark">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div><div class="hl" style="bottom:0;"></div><div class="dot dl" style="bottom:-3px;"></div><div class="dot dr" style="bottom:-3px;"></div></div>
+  <div class="hero-content">
+    <h1>Pipeline Review.</h1>
+    <div class="hero-meta">
+      <div class="info" id="hero-info"></div>
+      <div class="coords" id="hero-coords"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ALERTAS + KPIs -->
+<section id="alertas" class="section-dark" style="position:relative;">
+  <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div></div>
+  <div class="section-inner section-pad-sm">
+    <div id="alerts-container"></div>
+    <div id="kpis-container"></div>
+    <div id="lost-indicator"></div>
+  </div>
+</section>
+
+<!-- FUNIL DE METAS -->
+<section id="funil" class="section-silver" style="position:relative;">
+  <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div><div class="hl" style="top:48px;"></div><div class="dot dl" style="top:45px;"></div><div class="dot dr" style="top:45px;"></div></div>
+  <div class="section-inner section-pad" id="funnel-section"></div>
+</section>
+
+<!-- PERFORMANCE / MOVIMENTACAO -->
+<section id="performance" class="section-cosmos" style="position:relative;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 70%,rgba(27,104,184,0.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 30%,rgba(156,31,39,0.06) 0%,transparent 40%);"></div>
+  <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div></div>
+  <div class="section-inner section-pad" id="performance-section"></div>
+</section>
+
+<!-- COMPLIANCE -->
+<section id="compliance" class="section-silver" style="position:relative;">
+  <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div></div>
+  <div class="section-inner section-pad" id="compliance-section"></div>
+</section>
+
+<!-- ACOES + PIPELINE -->
+<section id="plano-acao" class="section-dark" style="position:relative;">
+  <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div></div>
+  <div class="section-inner section-pad" id="actions-section"></div>
+</section>
+
+<!-- MARKETING -->
+<section id="marketing" class="section-cosmos" style="position:relative;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 80%,rgba(139,92,246,0.06) 0%,transparent 50%),radial-gradient(ellipse at 30% 20%,rgba(27,104,184,0.06) 0%,transparent 40%);"></div>
+  <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div></div>
+  <div class="section-inner section-pad" id="marketing-section"></div>
+</section>
+
+<!-- STATUS REVIEW -->
+<section id="status" class="section-silver" style="position:relative;">
+  <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div><div class="hl" style="bottom:48px;"></div><div class="dot dl" style="bottom:45px;"></div><div class="dot dr" style="bottom:45px;"></div></div>
+  <div class="section-inner section-pad" id="status-section"></div>
+</section>
+
+<!-- FOOTER -->
+<div class="footer" id="footer-section"></div>
+
+</div><!-- /app -->
+
+<script>
+const LOGO_SVG = '<svg style="display:inline-block;height:14px;fill:var(--gray-50);" viewBox="0 0 10180 1240" xmlns="http://www.w3.org/2000/svg"><path d="m2005.83 42.13-307.87 1154h217.33L2217.95 61.68l302.65 1134.45h217.34l-307.87-1154ZM333.85 42.13l-307.87 1154h217.34L545.97 61.68l302.66 1134.45h217.33L758.1 42.13ZM4201.22 42.13l-307.87 1154h217.34L4413.34 61.68 4716 1196.13h217.34l-307.88-1154ZM1789.08 42.13H986.93v194.33h292.17v959.67h216.6V236.46h293.38ZM6686.55 42.13l-307.87 1154h217.34L6898.68 61.68l302.65 1134.45h217.34l-307.87-1154ZM5666.44 672.48 5490.98 42.16l-424.07-.03v1154h216.61V79.64l170.24 611.58h425.36l170.24-611.58v1116.49h216.6v-1154l-424.06.03ZM3524.06 972.73c-57.57 37.2-122.85 54.25-184.81 54.25-70.32 0-135.16-17.8-192.72-52.88-118.62-72.31-186.66-201.97-186.66-355.72 0-217.76 130.5-319.58 186.6-353.25 57.61-34.59 122.47-52.12 192.78-52.12 6.32 0 98.34.96 184.8 52.06 117.68 69.54 140.24 189.95 140.24 189.95h216.55c0-.02-8.62-118.66-96.5-230.45C3682.14 94.57 3519.91 20 3339.24 20c-108.53 0-208.94 26.43-298.4 78.57-85.13 49.6-156.39 120.44-206.07 204.88-54.76 93.06-82.53 199.02-82.53 314.93 0 220.57 107.87 415.8 288.55 522.21 89.45 52.7 189.87 79.41 298.46 79.41 177.7 0 341.62-77.36 443.55-210.36 87.52-114.2 101.64-240.9 101.64-240.9h-218.88s-21.46 126.44-141.5 204M7747.83 467.71h-75.22v-346.3h77.6c144.03 0 156.54 111.7 156.54 172.81 0 164.66-109.64 173.5-158.92 173.5m7.8-425.6h-174.5V547h171.45c227.24 0 244.64-191.38 244.64-252.78 0-130.66-67.38-252.1-241.6-252.1M8074.88 547h91.49V42.13h-91.49ZM8487.66 354.54h119.47c-.28 29.05-15.86 117.24-128.28 117.24-38.56 0-142.65-16.75-142.65-177.56 0-112.15 59.46-176.87 142.65-176.87 69.87 0 109.38 42.84 121.65 86.06h92.84c-10.4-67.21-72.65-168.06-215.84-168.06-77.49 0-233.13 45.2-233.13 259.9 0 75 35.52 258.53 233.8 258.53 62.3 0 108.1-23.46 144.01-65.74h2.37l6.78 58.96h65.74V283.04h-209.41ZM8776.42 547h91.49V42.13h-91.49ZM9338.97 42.13h-402.54v76.57h156.2V547h90.47V118.7h155.87ZM9477.73 349.12l68-203.3h4.07l68.34 203.3Zm14.13-307L9313.62 547h97.93l41.7-124.7h189.5l41.9 124.7h97.6l-177.9-504.87ZM9931.4 470.42V42.12h-91.49V547h314.11v-76.58Z"/></svg>';
+
+function fmt(n) { return n == null ? '—' : n.toLocaleString('pt-BR'); }
+function fmtR(n) { return n == null ? '—' : n >= 1000 ? 'R$' + (n/1000).toFixed(1).replace('.', ',') + 'k' : 'R$' + fmt(n); }
+
+function renderHero(m, config) {
+  const dt = new Date(m.generated_at);
+  const h = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+  document.getElementById('hero-info').innerHTML = `<strong>Periodo:</strong> ${m.period_start.split('-').reverse().join('/')} a ${m.period_end.split('-').reverse().join('/')} (Dia ${m.day_of_month} de ${m.days_in_month}) &nbsp;|&nbsp; Semana ${String(m.week_number).padStart(2,'0')} &nbsp;|&nbsp; ${m.week_day} &nbsp;|&nbsp; <span style="color:var(--chart-amber);">Atualizado as ${h}</span>`;
+  document.getElementById('hero-coords').textContent = config?.coords || '';
+}
+
+function renderAlerts(alerts) {
+  const c = document.getElementById('alerts-container');
+  c.innerHTML = alerts.map(a => `<div class="alert-bar alert-${a.type}"><strong>${a.icon}:</strong>&nbsp; ${a.message}<span class="count">${a.count}</span></div>`).join('');
+}
+
+function renderKPIs(k) {
+  document.getElementById('kpis-container').innerHTML = `<div class="kpi-grid">
+    <div class="kpi-card kpi-highlight"><div class="label">Leads Ativos</div><div class="value v-blue">${k.leads_ativos}</div><div class="sub">no pipeline</div></div>
+    <div class="kpi-card"><div class="label">Valor Pipeline</div><div class="value">${fmtR(k.valor_pipeline)}</div><div class="sub">${fmtR(k.valor_pipeline_real)} real apos limpeza</div></div>
+    <div class="kpi-card"><div class="label">Ticket Medio</div><div class="value">R$${fmt(k.ticket_medio)}</div><div class="benchmark">benchmark: R$${fmt(k.ticket_benchmark)}</div></div>
+    <div class="kpi-card kpi-danger"><div class="label">Vendas / Meta</div><div class="value v-red">${k.vendas_atual} / ${k.vendas_meta}</div><div class="sub">${k.mes_label}</div></div>
+    <div class="kpi-card kpi-success"><div class="label">Prox. Fechamento</div><div class="value v-green">${fmtR(k.prox_fechamento_valor)}</div><div class="sub">${k.prox_fechamento_label}</div></div>
+    <div class="kpi-card kpi-danger"><div class="label">Leads para Lost</div><div class="value v-red">${k.leads_para_lost}</div><div class="sub">de ${k.leads_ativos} ativos = ${k.leads_para_lost_pct}% de perda</div></div>
+  </div>`;
+
+  const lostPct = k.leads_para_lost_pct;
+  const realPct = (100 - lostPct).toFixed(1);
+  document.getElementById('lost-indicator').innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:8px;">
+    <div style="background:var(--gray-90);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-red);margin-bottom:6px;font-weight:500;">Total de Leads no Pipeline</div>
+      <div style="font-size:32px;font-weight:800;color:var(--white);">${k.leads_ativos}</div>
+      <div style="font-size:12px;color:var(--gray-40);">leads ativos antes da limpeza</div>
+    </div>
+    <div style="background:var(--gray-90);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-red);margin-bottom:6px;font-weight:500;">Recomendados para Lost</div>
+      <div style="font-size:32px;font-weight:800;color:var(--chart-red);">${k.leads_para_lost}</div>
+      <div style="font-size:12px;color:var(--gray-40);">${lostPct}% do pipeline vai ser perdido</div>
+      <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${lostPct}%;background:var(--chart-red);border-radius:2px;"></div></div>
+    </div>
+    <div style="background:var(--gray-90);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-green);margin-bottom:6px;font-weight:500;">Pipeline Real Apos Limpeza</div>
+      <div style="font-size:32px;font-weight:800;color:var(--chart-green);">${k.pipeline_real_apos_limpeza}</div>
+      <div style="font-size:12px;color:var(--gray-40);">leads reais = ${fmtR(k.pipeline_real_valor)}</div>
+      <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${realPct}%;background:var(--chart-green);border-radius:2px;"></div></div>
+    </div>
+  </div>`;
+}
+
+function renderFunnel(f, m) {
+  const el = document.getElementById('funnel-section');
+  const rows = f.etapas.map(e => {
+    const pill = e.resp === 'MKT' ? '<span class="resp-pill resp-mkt" style="margin-right:4px;">MKT</span>' : '<span class="resp-pill resp-com" style="margin-right:4px;">COM</span>';
+    const pct = Math.min(e.progresso_pct, 100);
+    const pctLabel = e.progresso_pct >= 999 ? '&#8734;' : e.progresso_pct + '%';
+    const pfClass = e.progresso_pct >= 100 ? 'pf-great' : e.progresso_pct >= 70 ? 'pf-ok' : e.progresso_pct >= 40 ? 'pf-behind' : 'pf-crit';
+    const fsClass = e.status === 'ACIMA' ? 'fs-great' : e.status === 'OK' ? 'fs-ok' : e.status === 'ATRAS' ? 'fs-behind' : 'fs-crit';
+    return `<div class="funnel-row"><div class="sn">${pill} ${e.nome}</div><div class="cr">${e.benchmark_pct}</div><div class="ac">${e.atual}</div><div class="nd">${e.meta_mes}</div><div class="nd-pro">~${e.proporcional}</div><div><div class="progress-track"><div class="progress-fill ${pfClass}" style="width:${pct}%">${pctLabel}</div></div></div><div class="funnel-status ${fsClass}">${e.status}</div></div>`;
+  }).join('');
+
+  const vendaPct = f.meta_vendas > 0 ? Math.round((m.kpis.vendas_atual / f.meta_vendas) * 100) : 0;
+  const diagHtml = f.diagnostico.map(d => `<strong>${d.area}:</strong> ${d.texto}`).join('<br>');
+
+  el.innerHTML = `
+    <p class="eyebrow">Funil de Metas</p>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">${m.meta.month_name} ${m.meta.year} — Dia ${m.meta.day_of_month} de ${m.meta.days_in_month}</h2>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">Meta: ${f.meta_vendas} vendas/mes | Ticket benchmark: R$${fmt(f.ticket_benchmark)} | Revenue alvo: ${fmtR(f.revenue_alvo)}</p>
+    <p style="font-size:12px;color:var(--cosmos-blue-deep);margin-bottom:28px;font-weight:500;">
+      <span class="resp-pill resp-mkt">Marketing</span> Responsavel pelo volume de Leads e MQLs &nbsp;&nbsp;
+      <span class="resp-pill resp-com">Comercial</span> Responsavel de Reunioes em diante
+    </p>
+    <div class="glass-card" style="background:var(--white);border-color:var(--border-light);">
+      <div class="funnel-row fh"><div>Etapa</div><div style="text-align:center">Benchmark</div><div style="text-align:center">Atual</div><div style="text-align:center">Meta Mes</div><div style="text-align:center">Proporcional<br><span style="font-size:9px;opacity:0.7;">ate hoje</span></div><div>Progresso</div><div style="text-align:center">Status</div></div>
+      ${rows}
+      <div class="funnel-row" style="padding:14px 0;background:rgba(239,68,68,0.03);border-radius:8px;margin-top:4px;">
+        <div class="sn" style="font-size:16px;">Vendas (Won)</div><div class="cr">—</div><div class="ac" style="font-size:20px;color:var(--chart-red);">${m.kpis.vendas_atual}</div><div class="nd" style="font-size:20px;">${f.meta_vendas}</div><div class="nd-pro" style="font-size:14px;">~0</div><div><div class="progress-track" style="height:28px;"><div class="progress-fill pf-crit" style="width:${Math.max(vendaPct, 1)}%;min-width:40px;">${m.kpis.vendas_atual}/${f.meta_vendas}</div></div></div><div class="funnel-status fs-crit" style="font-size:14px;">${vendaPct}%</div>
+      </div>
+      <div class="funnel-summary">
+        <div class="fm"><div class="fl">Win Rate Alvo</div><div class="fv" style="color:var(--cosmos-blue-mid);">${f.win_rate_alvo}%</div><div class="fs">Propostas → Vendas</div></div>
+        <div class="fm"><div class="fl">Leads/Mes Necessarios</div><div class="fv" style="color:var(--chart-amber);">~${f.leads_meta_mes}</div><div class="fs">para ${f.meta_vendas} vendas a benchmark</div></div>
+        <div class="fm"><div class="fl">Leads/Mes Atual</div><div class="fv" style="color:var(--chart-red);">~${f.leads_semana_atual ? f.leads_semana_atual * 4 : 0}</div><div class="fs">${f.leads_semana_atual}/semana x 4</div></div>
+        <div class="fm"><div class="fl">Revenue Projetado</div><div class="fv" style="color:var(--chart-red);">${fmtR(f.revenue_projetado)}</div><div class="fs">meta: ${fmtR(f.revenue_alvo)}</div></div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;background:rgba(156,31,39,0.05);border:1px solid rgba(156,31,39,0.1);border-radius:12px;">
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:var(--cosmos-red);">Diagnostico vs Benchmark</div>
+      <div style="font-size:13px;color:var(--muted-light);line-height:1.7;">${diagHtml}</div>
+    </div>`;
+}
+
+function renderPerformance(mov, cohort, taxas, charts) {
+  const el = document.getElementById('performance-section');
+  const corMap = { green: 'var(--chart-green)', blue: 'var(--chart-blue)', red: 'var(--chart-red)', muted: 'var(--gray-50)' };
+  const detRows = mov.detalhes.map(d => `<tr><td class="mn" style="color:${corMap[d.cor]}">${d.descricao}</td><td style="color:${corMap[d.cor]};font-weight:700;">${d.qtd}</td><td>${d.detalhe}</td></tr>`).join('');
+
+  const cohortRows = cohort.map(c => {
+    if (c.placeholder) return `<tr style="opacity:0.2;"><td class="mn">${c.turma}<br><span style="font-size:10px;">${c.subtitulo}</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`;
+    const style = c.destaque ? '' : 'style="border-bottom:1px solid rgba(255,255,255,0.06);"';
+    const nameColor = c.destaque ? 'var(--chart-green)' : 'var(--gray-50)';
+    const valColor = c.destaque ? 'var(--chart-green)' : 'var(--gray-50)';
+    const blueColor = c.destaque ? 'var(--chart-blue)' : 'var(--gray-50)';
+    return `<tr ${style}>
+      <td class="mn" style="color:${nameColor}">${c.turma}<br><span style="font-size:10px;color:var(--gray-60);">${c.subtitulo}</span></td>
+      <td style="color:${valColor};font-weight:${c.destaque?700:400};">${c.entraram != null ? (c.entraram === '~23' ? '~23' : c.entraram) : '—'}</td>
+      <td style="color:${blueColor};font-weight:${c.destaque?700:400};">${c.contato}${c.contato_pct ? ' <span style="font-size:10px;color:var(--gray-50);">(' + c.contato_pct + '%)</span>' : ''}</td>
+      <td style="color:${blueColor};font-weight:${c.destaque?700:400};">${c.mql}${c.mql_pct ? ' <span style="font-size:10px;color:var(--gray-50);">(' + c.mql_pct + '%)</span>' : ''}</td>
+      <td class="${c.reuniao === 0 ? 'dn' : ''}">${c.reuniao}</td>
+      <td class="${c.proposta === 0 ? 'dn' : ''}">${c.proposta}</td>
+      <td style="color:${c.venda === 0 ? 'var(--chart-red)' : ''}">${c.venda}</td>
+      <td style="color:${typeof c.lost === 'string' ? 'var(--chart-red)' : ''}">${c.lost}</td>
+    </tr>`;
+  }).join('');
+
+  const taxasCards = taxas.taxas.map(t => {
+    const realDisplay = t.real != null ? t.real + '%' : '—';
+    const realColor = t.real != null ? 'var(--white)' : 'var(--gray-50)';
+    const statusColor = t.status_cor === 'amber' ? 'var(--chart-amber)' : 'var(--gray-50)';
+    const barColor = t.status_cor === 'amber' ? 'var(--chart-amber)' : 'var(--gray-50)';
+    return `<div style="background:rgba(26,26,26,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--cosmos-blue-light);margin-bottom:6px;">${t.nome}</div>
+      <div style="font-size:13px;color:var(--gray-30);margin-bottom:8px;line-height:1.4;">${t.descricao}</div>
+      <div style="font-size:24px;font-weight:800;color:${realColor};">${realDisplay}</div>
+      <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin:6px 0;overflow:hidden;"><div style="height:100%;width:${t.bar_pct}%;background:${barColor};border-radius:3px;"></div></div>
+      <div style="font-size:11px;color:${statusColor};">${t.status_text}</div>
+      <div style="font-size:10px;color:var(--gray-50);margin-top:2px;">${t.nota}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <p class="eyebrow" style="color:var(--cosmos-blue-light);">Analise de Jornada</p>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Movimentacao do Funil</h2>
+    <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">Nao apenas onde os leads estao — mas como estao se movendo entre as etapas</p>
+
+    <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
+      <h3 style="margin-bottom:4px;">Fluxo da ${mov.semana_label}</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:20px;">Quantos leads entraram, avancaram de etapa, e sairam do funil neste periodo.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+        <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-green);margin-bottom:6px;font-weight:500;">Entraram no Funil</div>
+          <div style="font-size:36px;font-weight:800;color:var(--chart-green);">${mov.entraram}</div>
+          <div style="font-size:12px;color:var(--gray-40);">leads novos criados hoje</div>
+        </div>
+        <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-blue);margin-bottom:6px;font-weight:500;">Avancaram de Etapa</div>
+          <div style="font-size:36px;font-weight:800;color:var(--chart-blue);">${mov.avancaram}</div>
+          <div style="font-size:12px;color:var(--gray-40);">leads que mudaram de fase</div>
+        </div>
+        <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-red);margin-bottom:6px;font-weight:500;">Recomendados para Lost</div>
+          <div style="font-size:36px;font-weight:800;color:var(--chart-red);">${mov.recomendados_lost}</div>
+          <div style="font-size:12px;color:var(--gray-40);">leads mortos a remover</div>
+        </div>
+      </div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Detalhamento da movimentacao:</div>
+      <table class="evo-table"><thead><tr><th>Movimentacao</th><th>Quantidade</th><th>Detalhe</th></tr></thead><tbody>${detRows}</tbody></table>
+      <div style="margin-top:16px;padding:12px 16px;background:rgba(94,151,228,0.06);border:1px solid rgba(94,151,228,0.12);border-radius:8px;font-size:13px;color:var(--gray-30);line-height:1.6;"><strong style="color:var(--cosmos-blue-light);">Leitura:</strong> ${mov.leitura}</div>
+    </div>
+
+    <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
+      <h3 style="margin-bottom:4px;">Cohort: Jornada por Turma de Entrada</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:20px;">Cada linha acompanha uma "turma" de leads — desde quando entraram ate onde estao hoje.</p>
+      <table class="evo-table"><thead><tr><th>Turma</th><th>Entraram</th><th>→ Em Contato</th><th>→ MQL</th><th>→ Reuniao</th><th>→ Proposta</th><th>→ Venda</th><th>Lost</th></tr></thead><tbody>${cohortRows}</tbody></table>
+    </div>
+
+    <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
+      <h3 style="margin-bottom:4px;">Taxas de Conversao: Real vs Benchmark</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Quanto % dos leads avanca de uma etapa para a proxima.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">${taxasCards}</div>
+      <div style="font-size:12px;color:var(--gray-40);line-height:1.5;"><strong style="color:var(--cosmos-blue-light);">Nota:</strong> ${taxas.nota}</div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card" style="background:rgba(26,26,26,0.5);border-color:rgba(255,255,255,0.08);"><h3>Leads Novos de Abril: Onde Estao Hoje</h3><div class="chart-container"><canvas id="evoChart"></canvas></div></div>
+      <div class="chart-card" style="background:rgba(26,26,26,0.5);border-color:rgba(255,255,255,0.08);"><h3>Pipeline Total: Valor por Etapa</h3><div class="chart-container"><canvas id="valueChart"></canvas></div></div>
+    </div>`;
+}
+
+function renderCompliance(comp) {
+  const el = document.getElementById('compliance-section');
+  const cards = comp.categorias.map(cat => {
+    const items = cat.items.map(i => `<li><span style="color:${i.ok ? 'var(--chart-green)' : 'var(--chart-red)'};">${i.ok ? '&#10003;' : '&#10007;'}</span> ${i.texto}</li>`).join('');
+    const score = cat.score != null ? cat.score + '%' : '—%';
+    const barW = cat.score != null ? cat.score : 0;
+    return `<div class="compliance-item" style="background:var(--white);"><div class="ci-header"><div><div class="ci-name">${cat.nome}</div><div class="ci-weight">peso ${cat.peso}%</div></div><div class="ci-score">${score}</div></div><div class="compliance-bar"><div class="compliance-bar-fill" style="width:${barW}%"></div></div><ul class="compliance-checklist">${items}</ul></div>`;
+  }).join('');
+
+  const scoreGeral = comp.score_geral != null ? comp.score_geral + '%' : '—%';
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+      <div><p class="eyebrow">Operacional</p><h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;">Playbook Compliance</h2></div>
+      <div style="text-align:right;"><div style="font-size:48px;font-weight:800;letter-spacing:-0.025em;color:var(--cosmos-blue-deep);">${scoreGeral}</div><div style="font-size:12px;color:var(--muted-light);">score geral</div></div>
+    </div>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:28px;">Aderencia ao playbook comercial | ${comp.nota}</p>
+    <div class="compliance-grid">${cards}</div>`;
+}
+
+function renderActions(acoes, pipeline, meta) {
+  const el = document.getElementById('actions-section');
+  const actionItems = acoes.map(a => `<li><div class="action-check" onclick="this.classList.toggle('checked')"></div><span class="action-priority ap-${a.prioridade}">${a.prioridade === 'urgente' ? 'Urgente' : a.prioridade === 'importante' ? 'Importante' : 'Normal'}</span><div>${a.html}</div></li>`).join('');
+
+  const pipelineHtml = pipeline.etapas.map(etapa => {
+    const valorLabel = etapa.valor ? fmtR(etapa.valor) : '';
+    const headerCols = etapa.colunas.map(c => `<th>${c}</th>`).join('');
+    const rows = etapa.leads.map(l => {
+      const nameCell = `<td><div class="lead-name">${l.nome}</div>${l.empresa ? '<div class="lead-company">' + l.empresa + '</div>' : ''}${l.telefone ? '<div class="lead-phone">' + l.telefone + '</div>' : ''}</td>`;
+      const valCell = l.valor ? `<td><strong class="${l.valor_cor ? 'v-' + l.valor_cor : ''}">${l.valor}</strong></td>` : (l.data !== undefined ? `<td>${l.data}</td>` : '<td>—</td>');
+      const daysCell = `<td><span class="days-badge days-${l.dias_nivel}">${l.dias}d</span></td>`;
+      const tagsCell = `<td>${l.tags.map(t => `<span class="tag${t.cor !== 'default' ? ' tag-' + t.cor : ''}">${t.texto}</span>`).join('')}</td>`;
+      const cadCell = `<td><div class="cadence-status"><span class="cadence-dot c-${l.cadencia_cor}"></span> ${l.cadencia}</div></td>`;
+      const decCell = `<td><span class="decision d-${l.decisao_tipo}">${l.decisao}</span></td>`;
+      const actCell = `<td class="action-text">${l.acao}</td>`;
+      return `<tr>${nameCell}${valCell}${daysCell}${tagsCell}${cadCell}${decCell}${actCell}</tr>`;
+    }).join('');
+    return `<div id="${etapa === pipeline.etapas[0] ? 'pipeline' : ''}" style="margin-bottom:28px;"><div class="sec-header"><div class="sec-title">${etapa.nome} <span class="badge badge-${etapa.badge_cor}">${etapa.count} leads</span>${valorLabel ? ' <span class="badge badge-' + etapa.badge_cor + '">' + valorLabel + '</span>' : ''}</div></div><table class="lead-table"><thead><tr>${headerCols}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <p class="eyebrow">Decisoes</p>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px;">Acoes para Hoje — ${meta.period_start.split('-').reverse().join('/')}</h2>
+    <div class="glass-card" style="border-color:rgba(239,68,68,0.2);">
+      <h3 style="color:var(--alert-red-text);margin-bottom:12px;">Plano de Acao — Checklist</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Marque cada item apos execucao. Revisado no proximo PLRW.</p>
+      <ul class="action-checklist">${actionItems}</ul>
+    </div>
+    ${pipelineHtml}
+    <div class="charts-row">
+      <div class="chart-card"><h3>Distribuicao do Pipeline</h3><div class="chart-container"><canvas id="funnelChart"></canvas></div></div>
+      <div class="chart-card"><h3>Decisoes Recomendadas</h3><div class="chart-container"><canvas id="decisionChart"></canvas></div></div>
+    </div>`;
+}
+
+function renderMarketing(mkt) {
+  const el = document.getElementById('marketing-section');
+  const metaStatus = mkt.novos_leads_hoje >= mkt.meta_diaria;
+  const mqStatus = mkt.novos_mqls_hoje >= mkt.meta_mql_diaria;
+  const qualStatus = mkt.taxa_qualificacao >= mkt.taxa_qualificacao_benchmark;
+
+  const leadsRows = mkt.leads_novos.map(l => `<tr>
+    <td class="mn"${l.qualificado ? ' style="color:var(--chart-green);"' : ''}>${l.nome}</td>
+    <td>${l.horario}</td>
+    <td${l.qualificado ? ' style="color:var(--chart-green);font-weight:600;"' : ''}>${l.etapa}</td>
+    <td>${l.origem ? '<span class="tag tag-blue" style="font-size:9px;">' + l.origem + '</span>' : '—'}</td>
+    <td style="color:${l.qualificado ? 'var(--chart-green);font-weight:700' : 'var(--gray-50)'};">${l.qualificado ? 'Sim' : 'Nao'}</td>
+  </tr>`).join('');
+
+  const diagHtml = mkt.diagnostico.map(d => `<strong>${d.area}:</strong> ${d.texto}`).join('<br>');
+
+  el.innerHTML = `
+    <p class="eyebrow" style="color:#A78BFA;">Marketing</p>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Novos Leads e Qualificacao</h2>
+    <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">O marketing esta entregando novos leads no volume esperado? Estamos qualificando (MQL) no ritmo certo?</p>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">
+      <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Novos Leads Hoje</div>
+        <div style="font-size:36px;font-weight:800;color:var(--chart-green);">${mkt.novos_leads_hoje}</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">meta diaria: ~${mkt.meta_diaria}</div>
+        <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:rgba(16,185,129,0.12);color:#34D399;">${metaStatus ? '+' + (mkt.novos_leads_hoje - mkt.meta_diaria) + ' ACIMA DA META' : 'ABAIXO DA META'}</div>
+      </div>
+      <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Deveriamos Ter (Dia ${mkt.novos_leads_hoje > 0 ? '1' : '?'})</div>
+        <div style="font-size:36px;font-weight:800;color:var(--cosmos-blue-mid);">~${mkt.deveriam_ter}</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">${mkt.leads_meta_formula}</div>
+        <div style="font-size:11px;color:var(--chart-green);margin-top:8px;font-weight:600;">Estamos ${mkt.pct_acima_meta}% acima</div>
+      </div>
+      <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Novos MQLs Hoje</div>
+        <div style="font-size:36px;font-weight:800;color:var(--chart-green);">${mkt.novos_mqls_hoje}</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">meta diaria: ~${mkt.meta_mql_diaria}</div>
+        <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:rgba(16,185,129,0.12);color:#34D399;">${mqStatus ? 'NA META' : 'ABAIXO'}</div>
+      </div>
+      <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Taxa de Qualificacao</div>
+        <div style="font-size:36px;font-weight:800;color:var(--white);">${mkt.taxa_qualificacao}%</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">benchmark: ${mkt.taxa_qualificacao_benchmark}%</div>
+        <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:${qualStatus ? 'rgba(16,185,129,0.12);color:#34D399' : 'rgba(245,158,11,0.12);color:#FBBF24'};">${qualStatus ? 'ACIMA' : 'ABAIXO — monitorar'}</div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);margin-bottom:24px;">
+      <h3 style="margin-bottom:4px;">${mkt.novos_leads_hoje} Leads Novos — ${new Date().toLocaleDateString('pt-BR')}</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:12px;">Filtro: Criado Hoje no Kommo. Fonte real, nao estimativa.</p>
+      <table class="evo-table"><thead><tr><th>Lead</th><th>Horario</th><th>Etapa Atual</th><th>Origem</th><th>Qualificado?</th></tr></thead><tbody>${leadsRows}</tbody></table>
+    </div>
+
+    <div style="padding:16px 20px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.12);border-radius:12px;margin-bottom:24px;">
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:#A78BFA;">Diagnostico de Marketing — Dados Reais</div>
+      <div style="font-size:13px;color:var(--gray-30);line-height:1.7;">${diagHtml}</div>
+    </div>
+
+    <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
+      <h3 style="margin-bottom:16px;">Projecao: Novos Leads Acumulados vs Meta</h3>
+      <div style="height:220px;"><canvas id="marketingChart"></canvas></div>
+    </div>`;
+}
+
+function renderStatus(sr) {
+  const el = document.getElementById('status-section');
+  const taxasCards = sr.taxas.map(t => {
+    const maxVal = Math.max(t.real, t.benchmark);
+    const realH = maxVal > 0 ? Math.round((t.real / maxVal) * 100) : 2;
+    const benchH = maxVal > 0 ? Math.round((t.benchmark / maxVal) * 100) : 2;
+    const redStyle = t.real === 0 ? 'style="color:var(--chart-red);"' : '';
+    return `<div class="status-metric" style="background:var(--white);"><div class="sm-label">${t.nome}</div><div class="sm-real" ${redStyle}>${t.real}%</div><div class="sm-vs">benchmark: ${t.benchmark}%</div><div class="bench-bar"><div class="bar bar-real" style="height:${realH}%"></div><div class="bar bar-bench" style="height:${benchH}%"></div></div></div>`;
+  }).join('');
+
+  const opItems = sr.top_oportunidades.map(o => `<li><span class="pdot pdot-${o.cor}"></span> ${o.html}</li>`).join('');
+  const probItems = sr.top_problemas.map(p => `<li><span class="pdot pdot-${p.cor}"></span> ${p.html}</li>`).join('');
+
+  el.innerHTML = `
+    <p class="eyebrow">Resumo</p>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px;">Status Review</h2>
+    <div class="status-grid" style="margin-bottom:28px;">${taxasCards}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="glass-card" style="background:var(--white);border-color:var(--border-light);"><h3 style="color:var(--chart-green);">Top 3 Oportunidades</h3><ul class="summary-list" style="margin-top:8px;">${opItems}</ul></div>
+      <div class="glass-card" style="background:var(--white);border-color:var(--border-light);"><h3 style="color:var(--chart-red);">Top 3 Problemas</h3><ul class="summary-list" style="margin-top:8px;">${probItems}</ul></div>
+    </div>`;
+}
+
+function renderFooter(meta, config) {
+  const dt = new Date(meta.generated_at);
+  const formatted = dt.toLocaleDateString('pt-BR') + ' as ' + dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+  document.getElementById('footer-section').innerHTML = `${LOGO_SVG}<br>Gerado em ${formatted}<div class="coords">${config?.coords || ''}</div>`;
+}
+
+function renderCharts(charts, mkt) {
+  Chart.defaults.font.family = "'Inter Tight', sans-serif";
+  Chart.defaults.color = '#959595';
+
+  new Chart(document.getElementById('evoChart'), {
+    type: 'bar',
+    data: { labels: charts.evo_chart.labels, datasets: [{ label: 'Leads de Abril', data: charts.evo_chart.data, backgroundColor: charts.evo_chart.colors, borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#C4C4C4', font: { size: 11 } } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6B6B6B', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#C4C4C4', font: { size: 11 } } } } }
+  });
+
+  new Chart(document.getElementById('valueChart'), {
+    type: 'bar',
+    data: { labels: charts.value_chart.labels, datasets: [{ label: 'Valor (R$)', data: charts.value_chart.data, backgroundColor: charts.value_chart.colors, borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6B6B6B', callback: v => 'R$' + (v/1000).toFixed(0) + 'k' } }, x: { grid: { display: false }, ticks: { color: '#6B6B6B', font: { size: 10 } } } } }
+  });
+
+  new Chart(document.getElementById('funnelChart'), {
+    type: 'doughnut',
+    data: { labels: charts.funnel_chart.labels, datasets: [{ data: charts.funnel_chart.data, backgroundColor: ['#3A3A3A', '#959595', '#9E8FD0', '#5E97E4', '#F59E0B', '#10B981'], borderColor: '#000', borderWidth: 3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#C4C4C4', font: { size: 11 }, padding: 8 } } } }
+  });
+
+  new Chart(document.getElementById('decisionChart'), {
+    type: 'doughnut',
+    data: { labels: charts.decision_chart.labels, datasets: [{ data: charts.decision_chart.data, backgroundColor: charts.decision_chart.colors, borderColor: '#000', borderWidth: 3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#C4C4C4', font: { size: 11 }, padding: 8 } } } }
+  });
+
+  if (mkt?.projecao) {
+    new Chart(document.getElementById('marketingChart'), {
+      type: 'line',
+      data: { labels: mkt.projecao.dias_labels, datasets: [
+        { label: 'Leads reais (acumulado)', data: mkt.projecao.real_acumulado, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.1)', borderWidth: 3, pointRadius: 6, pointBackgroundColor: '#10B981', fill: true, spanGaps: false, tension: 0 },
+        { label: 'Meta acumulada', data: mkt.projecao.meta_acumulada, borderColor: 'rgba(167,139,250,0.5)', borderWidth: 2, borderDash: [6, 4], pointRadius: 3, pointBackgroundColor: 'rgba(167,139,250,0.5)', fill: false, tension: 0 }
+      ] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#C4C4C4', font: { size: 11 } } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6B6B6B' } }, x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6B6B6B', font: { size: 10 } } } } }
+    });
+  }
+}
+
+async function init() {
+  try {
+    const [dataResp, configResp] = await Promise.all([
+      fetch('./dashboard-data.json'),
+      fetch('./client-config.json').catch(() => null)
+    ]);
+    if (!dataResp.ok) throw new Error('Dados nao encontrados');
+    const D = await dataResp.json();
+    const config = configResp?.ok ? await configResp.json() : null;
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+
+    renderHero(D.meta, config);
+    renderAlerts(D.alerts);
+    renderKPIs(D.kpis);
+    renderFunnel(D.funnel_metas, D);
+    renderPerformance(D.movimentacao, D.cohort, D.taxas_conversao, D.charts);
+    renderCompliance(D.compliance);
+    renderActions(D.acoes, D.pipeline_leads, D.meta);
+    renderMarketing(D.marketing);
+    renderStatus(D.status_review);
+    renderFooter(D.meta, config);
+    renderCharts(D.charts, D.marketing);
+
+    document.title = `Pipeline Review | ${D.meta.client_name || 'Dashboard'}`;
+  } catch (err) {
+    document.getElementById('loading').innerHTML = `<div class="error-state"><div style="font-size:24px;margin-bottom:8px;">Erro ao carregar dados</div><div style="color:var(--gray-40);font-size:13px;">${err.message}<br>Verifique se dashboard-data.json existe no mesmo diretorio.</div></div>`;
+  }
+}
+
+// Nav behavior
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
+document.querySelectorAll('.nav-inner a').forEach(link => {
+  link.addEventListener('click', e => { e.preventDefault(); const t = document.querySelector(link.getAttribute('href')); if (t) t.scrollIntoView({ behavior: 'smooth' }); });
+});
+
+init();
+</script>
+</body>
+</html>

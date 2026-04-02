@@ -1,290 +1,434 @@
 {
   "meta": {
-    "generated_at": "2026-04-01T19:00:00-03:00",
+    "generated_at": "2026-04-02T12:04:33.593Z",
     "period_start": "2026-04-01",
     "period_end": "2026-04-30",
-    "day_of_month": 1,
+    "day_of_month": 2,
     "days_in_month": 30,
     "week_number": 1,
-    "week_day": "Quarta-feira",
+    "week_day": "Quinta-feira",
     "month_name": "Abril",
     "year": 2026,
     "client_name": "Atacama Digital"
   },
-  "alerts": [
-    { "type": "danger", "icon": "Urgente", "message": "2 leads em Aguardando Pagamento precisam de ligacao HOJE (R$12.247 em jogo)", "count": 2 },
-    { "type": "warning", "icon": "Limpeza", "message": "7 leads devem ser movidos para Lost \u2014 pipeline inflado com ~R$18k irreal", "count": 7 },
-    { "type": "info", "icon": "CRM", "message": "2 leads em Reuniao Agendada ha 13+ dias sem atualizacao \u2014 verificar se reunioes aconteceram", "count": 2 }
-  ],
+  "alerts": [],
   "kpis": {
-    "leads_ativos": 30,
-    "valor_pipeline": 45300,
-    "valor_pipeline_real": 26700,
-    "ticket_medio": 3700,
+    "leads_ativos": 0,
+    "valor_pipeline": 0,
+    "valor_pipeline_real": 0,
+    "ticket_medio": 0,
     "ticket_benchmark": 2500,
     "vendas_atual": 0,
     "vendas_meta": 7,
     "mes_label": "abril 2026",
-    "prox_fechamento_valor": 12247,
+    "prox_fechamento_valor": 0,
     "prox_fechamento_label": "aguardando pagamento",
-    "leads_para_lost": 7,
-    "leads_para_lost_pct": 23.3,
-    "pipeline_real_apos_limpeza": 23,
-    "pipeline_real_valor": 26700
+    "leads_para_lost": 0,
+    "leads_para_lost_pct": 0,
+    "pipeline_real_apos_limpeza": 0,
+    "pipeline_real_valor": 0
   },
   "funnel_metas": {
     "meta_vendas": 7,
     "ticket_benchmark": 2500,
     "revenue_alvo": 17500,
     "leads_meta_mes": 227,
-    "leads_semana_atual": 47,
+    "leads_semana_atual": 0,
     "revenue_projetado": 0,
     "win_rate_alvo": 50,
     "etapas": [
-      { "nome": "Leads Entrada", "resp": "MKT", "benchmark_pct": "100%", "atual": 12, "meta_mes": 227, "proporcional": 8, "progresso_pct": 150, "status": "ACIMA" },
-      { "nome": "MQL (Qualificados)", "resp": "MKT", "benchmark_pct": "15.0%", "atual": 5, "meta_mes": 34, "proporcional": 1, "progresso_pct": 500, "status": "ACIMA" },
-      { "nome": "Reunioes", "resp": "COM", "benchmark_pct": "59.7%", "atual": 3, "meta_mes": 20, "proporcional": 1, "progresso_pct": 300, "status": "ACIMA" },
-      { "nome": "Propostas", "resp": "COM", "benchmark_pct": "69.6%", "atual": 8, "meta_mes": 14, "proporcional": 0, "progresso_pct": 999, "status": "ACIMA" },
-      { "nome": "Aguardando Pgto", "resp": "COM", "benchmark_pct": "50.0%", "atual": 2, "meta_mes": 7, "proporcional": 0, "progresso_pct": 999, "status": "ACIMA" }
+      {
+        "nome": "Leads Entrada",
+        "resp": "MKT",
+        "benchmark_pct": "100%",
+        "atual": 0,
+        "meta_mes": 227,
+        "proporcional": 16,
+        "progresso_pct": 0,
+        "status": "ATRAS"
+      },
+      {
+        "nome": "MQL (Qualificados)",
+        "resp": "MKT",
+        "benchmark_pct": "15%",
+        "atual": 0,
+        "meta_mes": 34,
+        "proporcional": 2,
+        "progresso_pct": 100,
+        "status": "ACIMA"
+      },
+      {
+        "nome": "Reunioes",
+        "resp": "COM",
+        "benchmark_pct": "59.7%",
+        "atual": 0,
+        "meta_mes": 20,
+        "proporcional": 0,
+        "progresso_pct": 100,
+        "status": "ACIMA"
+      },
+      {
+        "nome": "Propostas",
+        "resp": "COM",
+        "benchmark_pct": "69.6%",
+        "atual": 0,
+        "meta_mes": 14,
+        "proporcional": 0,
+        "progresso_pct": 999,
+        "status": "ACIMA"
+      },
+      {
+        "nome": "Aguardando Pgto",
+        "resp": "COM",
+        "benchmark_pct": "50%",
+        "atual": 0,
+        "meta_mes": 7,
+        "proporcional": 0,
+        "progresso_pct": 999,
+        "status": "ACIMA"
+      }
     ],
-    "diagnostico": [
-      { "area": "Volume de Topo (MKT)", "texto": "188 leads/mes gera ~28 MQLs. Meta: 34. Deficit de 6/mes. Aumentar investimento ou otimizar campanhas." },
-      { "area": "Proposta \u2192 Venda (COM)", "texto": "Benchmark 50%. Historico 2.6%. GAP CRITICO. Focar em qualidade da proposta e follow-up agressivo." },
-      { "area": "Reuniao \u2192 Proposta", "texto": "Real 266% vs benchmark 69.6%. Indica propostas sendo enviadas sem filtro adequado. Alinhar criterios." }
-    ]
+    "diagnostico": []
   },
   "movimentacao": {
-    "semana_label": "Semana 01 (01/04 a 01/04)",
-    "entraram": 9,
-    "avancaram": 5,
-    "recomendados_lost": 7,
+    "semana_label": "Semana 01",
+    "entraram": 0,
+    "avancaram": 0,
+    "recomendados_lost": 0,
     "detalhes": [
-      { "descricao": "+ Novos leads criados hoje", "qtd": "+9", "cor": "green", "detalhe": "Sheldon, Nayrlla, ERICSON, Dolores, Dr.Joao, Antonio Cicero, Centro Educ., Guilherme, Diogo Viana" },
-      { "descricao": "\u2192 Entrada \u2192 Em Contato", "qtd": "4", "cor": "blue", "detalhe": "Dr.Joao, Antonio Cicero, Centro Educ., Guilherme (ja receberam primeiro contato)" },
-      { "descricao": "\u2192 Em Contato \u2192 Qualificado", "qtd": "1", "cor": "blue", "detalhe": "Diogo Viana (ja qualificado como MQL)" },
-      { "descricao": "\u2192 Qualificado \u2192 Reuniao", "qtd": "0", "cor": "muted", "detalhe": "Nenhum avanco nesta etapa hoje" },
-      { "descricao": "\u2192 Reuniao \u2192 Proposta", "qtd": "0", "cor": "muted", "detalhe": "Nenhum avanco nesta etapa hoje" },
-      { "descricao": "\u2192 Proposta \u2192 Venda", "qtd": "0", "cor": "red", "detalhe": "Nenhuma venda fechada" },
-      { "descricao": "\u2190 Saidas recomendadas (Lost)", "qtd": "-7", "cor": "red", "detalhe": "Josuelton, Life Project, Paula Jordana, Leandro, Julita, Ilda, Alexsandro" }
+      {
+        "descricao": "+ Novos leads criados hoje",
+        "qtd": "+0",
+        "cor": "green",
+        "detalhe": "Nenhum"
+      },
+      {
+        "descricao": "← Saidas recomendadas (Lost)",
+        "qtd": "-0",
+        "cor": "red",
+        "detalhe": "Nenhum"
+      }
     ],
-    "leitura": "Dos 9 leads que entraram hoje, 4 ja foram contactados e 1 ja foi qualificado \u2014 velocidade boa no topo. O problema esta no meio/fundo: nenhum lead avancou de Reuniao para Proposta ou de Proposta para Venda. As 8 propostas e 3 reunioes do pipeline sao de semanas anteriores e estao paradas."
+    "leitura": "Dados gerados automaticamente pelo N8N a partir do Kommo."
   },
-  "cohort": [
-    { "turma": "Pre-abril", "subtitulo": "(pipeline herdado)", "entraram": 23, "contato": 9, "mql": 4, "reuniao": 3, "proposta": 8, "venda": 0, "lost": "7 recom.", "destaque": false },
-    { "turma": "Semana 01", "subtitulo": "01/04/2026", "entraram": 9, "contato": 4, "contato_pct": 44, "mql": 1, "mql_pct": 11, "reuniao": 0, "proposta": 0, "venda": 0, "lost": 0, "destaque": true },
-    { "turma": "Semana 02", "subtitulo": "08/04/2026", "placeholder": true },
-    { "turma": "Semana 03", "subtitulo": "15/04/2026", "placeholder": true },
-    { "turma": "Semana 04", "subtitulo": "22/04/2026", "placeholder": true }
-  ],
+  "cohort": [],
   "taxas_conversao": {
-    "nota": "As taxas reais so terao significado a partir da semana 3-4, quando os leads de abril comecarem a percorrer todo o funil.",
+    "nota": "Taxas calculadas automaticamente com base nos dados atuais do pipeline.",
     "taxas": [
-      { "nome": "Lead \u2192 MQL", "descricao": "9 entraram \u2192 1 qualificou", "real": 11.1, "benchmark": 15.0, "bar_pct": 74, "status_text": "Abaixo do alvo (15%)", "status_cor": "amber", "nota": "Dia 1 \u2014 leads recentes ainda nao trabalhados" },
-      { "nome": "MQL \u2192 Reuniao", "descricao": "1 qualificou \u2192 0 reunioes", "real": 0, "benchmark": 59.7, "bar_pct": 0, "status_text": "Alvo: 59.7%", "status_cor": "muted", "nota": "Normal no dia 1 \u2014 agendar reuniao leva dias" },
-      { "nome": "Reuniao \u2192 Proposta", "descricao": "0 reunioes \u2192 0 propostas", "real": null, "benchmark": 69.6, "bar_pct": 0, "status_text": "Alvo: 69.6%", "status_cor": "muted", "nota": "Sem dados \u2014 leads de abril ainda nao chegaram" },
-      { "nome": "Proposta \u2192 Venda", "descricao": "0 propostas \u2192 0 vendas", "real": null, "benchmark": 50.0, "bar_pct": 0, "status_text": "Alvo: 50%", "status_cor": "muted", "nota": "Sem dados \u2014 leads de abril ainda nao chegaram" }
+      {
+        "nome": "Lead → MQL",
+        "descricao": "0 leads → 0 qualificados",
+        "real": 0,
+        "benchmark": 15,
+        "bar_pct": 50,
+        "status_text": "Alvo: 15%",
+        "status_cor": "amber",
+        "nota": ""
+      },
+      {
+        "nome": "MQL → Reuniao",
+        "descricao": "0 MQLs → 0 reunioes",
+        "real": 0,
+        "benchmark": 59.7,
+        "bar_pct": 50,
+        "status_text": "Alvo: 59.7%",
+        "status_cor": "muted",
+        "nota": ""
+      },
+      {
+        "nome": "Reuniao → Proposta",
+        "descricao": "0 reunioes → 0 propostas",
+        "real": 0,
+        "benchmark": 69.6,
+        "bar_pct": 50,
+        "status_text": "Alvo: 69.6%",
+        "status_cor": "muted",
+        "nota": ""
+      },
+      {
+        "nome": "Proposta → Venda",
+        "descricao": "0 propostas → 0 vendas",
+        "real": 0,
+        "benchmark": 50,
+        "bar_pct": 0,
+        "status_text": "Alvo: 50%",
+        "status_cor": "muted",
+        "nota": ""
+      }
     ]
   },
   "compliance": {
     "score_geral": null,
-    "nota": "Primeira semana \u2014 preenchimento manual durante o PLRW",
+    "nota": "Preenchimento manual durante o PLRW",
     "categorias": [
       {
-        "nome": "Cadencia de Contato", "peso": 30, "score": null,
+        "nome": "Cadencia de Contato",
+        "peso": 30,
+        "score": null,
         "items": [
-          { "texto": "Primeiro contato no mesmo dia da entrada do lead", "ok": false },
-          { "texto": "Cadencia de 5 dias seguida para todos os leads", "ok": false },
-          { "texto": "Follow-up pos-agendamento enviado (confirmacao + case)", "ok": false },
-          { "texto": "Leads com 3+ tentativas sem resposta movidos para Lost", "ok": false }
+          {
+            "texto": "Primeiro contato no mesmo dia",
+            "ok": false
+          },
+          {
+            "texto": "Cadencia de 5 dias seguida",
+            "ok": false
+          },
+          {
+            "texto": "Follow-up pos-agendamento",
+            "ok": false
+          },
+          {
+            "texto": "Leads 3+ tentativas movidos para Lost",
+            "ok": false
+          }
         ]
       },
       {
-        "nome": "Qualidade do CRM", "peso": 25, "score": null,
+        "nome": "Qualidade do CRM",
+        "peso": 25,
+        "score": null,
         "items": [
-          { "texto": "Todos os leads com valor monetario preenchido", "ok": false },
-          { "texto": "Notas PLRW registradas no formato [PLRW DD/MM]", "ok": false },
-          { "texto": "Leads perdidos com motivo categorizado", "ok": false },
-          { "texto": "Etapas refletem realidade (nenhum lead preso)", "ok": false }
+          {
+            "texto": "Leads com valor preenchido",
+            "ok": false
+          },
+          {
+            "texto": "Notas PLRW registradas",
+            "ok": false
+          },
+          {
+            "texto": "Leads perdidos com motivo",
+            "ok": false
+          },
+          {
+            "texto": "Etapas refletem realidade",
+            "ok": false
+          }
         ]
       },
       {
-        "nome": "Preparacao de Reuniao", "peso": 25, "score": null,
+        "nome": "Preparacao de Reuniao",
+        "peso": 25,
+        "score": null,
         "items": [
-          { "texto": "Diagnostico pre-call preparado (ad library + site)", "ok": false },
-          { "texto": "Decisor confirmado na reuniao", "ok": false },
-          { "texto": "Roteiro consultivo de 6 etapas seguido", "ok": false },
-          { "texto": "Proximo passo registrado no CRM apos reuniao", "ok": false }
+          {
+            "texto": "Diagnostico pre-call preparado",
+            "ok": false
+          },
+          {
+            "texto": "Decisor confirmado",
+            "ok": false
+          },
+          {
+            "texto": "Roteiro consultivo seguido",
+            "ok": false
+          },
+          {
+            "texto": "Proximo passo registrado",
+            "ok": false
+          }
         ]
       },
       {
-        "nome": "Execucao Pos-PLRW", "peso": 20, "score": null,
+        "nome": "Execucao Pos-PLRW",
+        "peso": 20,
+        "score": null,
         "items": [
-          { "texto": "Acoes do PLRW anterior executadas", "ok": false },
-          { "texto": "Leads marcados PERDER movidos para Lost", "ok": false },
-          { "texto": "Leads AGIR com acao concreta registrada", "ok": false },
-          { "texto": "Follow-up enviado em ate 2h apos reunioes", "ok": false }
+          {
+            "texto": "Acoes anteriores executadas",
+            "ok": false
+          },
+          {
+            "texto": "Leads PERDER movidos",
+            "ok": false
+          },
+          {
+            "texto": "Leads AGIR com acao registrada",
+            "ok": false
+          },
+          {
+            "texto": "Follow-up em ate 2h",
+            "ok": false
+          }
         ]
       }
     ]
   },
-  "acoes": [
-    { "prioridade": "urgente", "html": "<strong>Ligar para Francisco Sousa</strong> (Like Odonto) \u2014 R$7.550 \u2014 20d em Aguardando Pagamento. Definir data exata de pagamento." },
-    { "prioridade": "urgente", "html": "<strong>Ligar para Aderson de Rocha</strong> (Projeto Perpetuo) \u2014 R$4.697 \u2014 7d em Aguardando Pagamento. Perguntar se tem duvidas." },
-    { "prioridade": "urgente", "html": "<strong>Mover para Lost:</strong> Josuelton (34d), Life Project (37d), Paula Jordana (27d) \u2014 follow-ups esgotados, sem resposta." },
-    { "prioridade": "importante", "html": "<strong>Decidir sobre Guilherme Guimaraes</strong> \u2014 R$8.780 com tag \"desqualificado\". Se desqualificado \u2192 Lost. Se nao \u2192 reativar cadencia." },
-    { "prioridade": "importante", "html": "<strong>Ultima chance: Joel Fernando</strong> \u2014 R$5.300 \u2014 25d com 1 tentativa. Ligar com oferta especial ou mover para Lost." },
-    { "prioridade": "normal", "html": "<strong>Follow-up:</strong> Joao F M Neto + Caherles (JFMN/FFMN Advocacia) \u2014 7 dias sem contato. Investigar se sao do mesmo escritorio." },
-    { "prioridade": "normal", "html": "<strong>Verificar reunioes:</strong> Investimento Prime (13d) + Mesquita/M1 CrossFight (18d) \u2014 aconteceram? Atualizar etapa no CRM." },
-    { "prioridade": "normal", "html": "<strong>Mover para Lost:</strong> Leandro Duarte (NO-SHOW + 3 tentativas) + Julita Candida (aposentada, fora do ICP)." }
-  ],
+  "acoes": [],
   "pipeline_leads": {
-    "etapas": [
-      {
-        "nome": "Aguardando Pagamento",
-        "badge_cor": "green",
-        "count": 2,
-        "valor": 12247,
-        "colunas": ["Lead", "Valor", "Dias", "Tags", "Cadencia", "Decisao", "Acao"],
-        "leads": [
-          { "nome": "Francisco Sousa", "empresa": "Like Odonto", "telefone": "+55 83 99992-754", "valor": "R$7.550", "valor_cor": "green", "dias": 20, "dias_nivel": "danger", "tags": [{"texto":"FUP_7D","cor":"red"}], "cadencia": "Parado", "cadencia_cor": "dead", "decisao": "URGENTE", "decisao_tipo": "urgente", "acao": "Ligar HOJE. Definir data de pagamento. ICP perfeito." },
-          { "nome": "Aderson de Rocha", "empresa": "Projeto Perpetuo", "telefone": "+55 11 99131-9577", "valor": "R$4.697", "valor_cor": "green", "dias": 7, "dias_nivel": "warn", "tags": [{"texto":"Proposta Env.","cor":"default"}], "cadencia": "Atrasado", "cadencia_cor": "late", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "Follow-up esta semana. Ligar se nao responder em 3 dias." }
-        ]
-      },
-      {
-        "nome": "Proposta Enviada",
-        "badge_cor": "amber",
-        "count": 8,
-        "valor": 26480,
-        "colunas": ["Lead", "Valor", "Dias", "Tags", "Cadencia", "Decisao", "Acao"],
-        "leads": [
-          { "nome": "Nay Vendramini", "telefone": "+55 41 99836-5578", "valor": null, "dias": 2, "dias_nivel": "ok", "tags": [{"texto":"Meta Ads","cor":"default"},{"texto":"TENT_1","cor":"default"}], "cadencia": "OK", "cadencia_cor": "ok", "decisao": "STAND-BY", "decisao_tipo": "standby", "acao": "Recente. Aguardar 5 dias. Preencher valor." },
-          { "nome": "Joao F M Neto", "empresa": "JFMN Advocacia", "valor": "R$2.270", "dias": 7, "dias_nivel": "warn", "tags": [{"texto":"TENT_1","cor":"default"}], "cadencia": "Atraso", "cadencia_cor": "late", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "Follow-up hoje." },
-          { "nome": "Caherles", "empresa": "FFMN Advocacia", "valor": "R$2.270", "dias": 7, "dias_nivel": "warn", "tags": [{"texto":"TENT_1","cor":"default"}], "cadencia": "Atraso", "cadencia_cor": "late", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "Abordar com Joao Neto." },
-          { "nome": "Joel Fernando", "valor": "R$5.300", "valor_cor": "amber", "dias": 25, "dias_nivel": "danger", "tags": [{"texto":"TENT_1","cor":"red"}], "cadencia": "Morto", "cadencia_cor": "dead", "decisao": "ULTIMA CHANCE", "decisao_tipo": "urgente", "acao": "25d com 1 tentativa. Ligar com oferta ou Lost." },
-          { "nome": "Guilherme Guimaraes", "valor": "R$8.780", "valor_cor": "amber", "dias": 26, "dias_nivel": "danger", "tags": [{"texto":"desqualif.","cor":"red"}], "cadencia": "Incoerente", "cadencia_cor": "dead", "decisao": "DECIDIR", "decisao_tipo": "urgente", "acao": "Maior valor mas tag \"desqualificado\". Decidir." },
-          { "nome": "Paula Jordana", "empresa": "Paula Barreto", "valor": "R$3.320", "dias": 27, "dias_nivel": "danger", "tags": [{"texto":"FUP_14D","cor":"red"}], "cadencia": "Esgotado", "cadencia_cor": "dead", "decisao": "PERDER", "decisao_tipo": "perder", "acao": "27d sem resposta. Lost." },
-          { "nome": "Josuelton", "empresa": "Jota Restauracao", "valor": "R$2.270", "dias": 34, "dias_nivel": "danger", "tags": [{"texto":"FUP_7D","cor":"red"},{"texto":"FUP_14D","cor":"red"}], "cadencia": "Esgotado", "cadencia_cor": "dead", "decisao": "PERDER", "decisao_tipo": "perder", "acao": "34d. Lost HOJE." },
-          { "nome": "Life Project", "valor": "R$2.270", "dias": 37, "dias_nivel": "danger", "tags": [{"texto":"FUP_14D","cor":"red"}], "cadencia": "Esgotado", "cadencia_cor": "dead", "decisao": "PERDER", "decisao_tipo": "perder", "acao": "37d. Lost HOJE." }
-        ]
-      },
-      {
-        "nome": "Reuniao Agendada",
-        "badge_cor": "blue",
-        "count": 3,
-        "valor": 3320,
-        "colunas": ["Lead", "Valor", "Dias", "Tags", "Cadencia", "Decisao", "Acao"],
-        "leads": [
-          { "nome": "Ana Maria Dourado", "valor": null, "dias": 1, "dias_nivel": "ok", "tags": [{"texto":"Qualificado","cor":"green"}], "cadencia": "OK", "cadencia_cor": "ok", "decisao": "STAND-BY", "decisao_tipo": "standby", "acao": "Verificar resultado da reuniao." },
-          { "nome": "Investimento Prime", "valor": null, "dias": 13, "dias_nivel": "danger", "tags": [{"texto":"FUP_7D","cor":"red"}], "cadencia": "Parado", "cadencia_cor": "dead", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "13d na etapa. Reuniao aconteceu?" },
-          { "nome": "Mesquita", "empresa": "M1 CrossFight", "valor": "R$3.320", "dias": 18, "dias_nivel": "danger", "tags": [{"texto":"Qualificado","cor":"green"}], "cadencia": "Parado", "cadencia_cor": "dead", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "CrossFit bom ICP. Atualizar." }
-        ]
-      },
-      {
-        "nome": "Qualificados (MQL)",
-        "badge_cor": "purple",
-        "count": 5,
-        "valor": 3280,
-        "colunas": ["Lead", "Valor", "Dias", "Tags", "Cadencia", "Decisao", "Acao"],
-        "leads": [
-          { "nome": "Diogo Viana", "valor": null, "dias": 0, "dias_nivel": "ok", "tags": [{"texto":"Meta Ads","cor":"default"}], "cadencia": "Novo", "cadencia_cor": "ok", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "Lead fresco. Agendar reuniao." },
-          { "nome": "Prof. Luiz Barbosa", "valor": null, "dias": 2, "dias_nivel": "ok", "tags": [{"texto":"TENT_2","cor":"default"}], "cadencia": "OK", "cadencia_cor": "ok", "decisao": "STAND-BY", "decisao_tipo": "standby", "acao": "Cadencia ok." },
-          { "nome": "Edson", "empresa": "Zedy Arquitetura", "valor": null, "dias": 3, "dias_nivel": "ok", "tags": [{"texto":"TENT_1","cor":"amber"}], "cadencia": "Atrasado", "cadencia_cor": "late", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "Fazer segunda tentativa." },
-          { "nome": "Julita Candida", "empresa": "APOSENTADA", "valor": null, "dias": 7, "dias_nivel": "warn", "tags": [{"texto":"TENT_3","cor":"red"}], "cadencia": "Esgotado", "cadencia_cor": "dead", "decisao": "PERDER", "decisao_tipo": "perder", "acao": "Fora do ICP. Lost." },
-          { "nome": "Leandro Duarte", "empresa": "Precisa Prime", "valor": "R$3.280", "dias": 8, "dias_nivel": "warn", "tags": [{"texto":"NO-SHOW","cor":"red"},{"texto":"TENT_3","cor":"red"}], "cadencia": "Morto", "cadencia_cor": "dead", "decisao": "PERDER", "decisao_tipo": "perder", "acao": "NO-SHOW + 3 tentativas. Lost." }
-        ]
-      },
-      {
-        "nome": "Em Contato",
-        "badge_cor": "default",
-        "count": 11,
-        "valor": null,
-        "colunas": ["Lead", "Data", "Dias", "Tags", "Cadencia", "Decisao", "Acao"],
-        "leads": [
-          { "nome": "Centro Educ. Dolores Soares", "data": "Hoje", "dias": 0, "dias_nivel": "ok", "tags": [{"texto":"Meta Ads","cor":"default"}], "cadencia": "Novo", "cadencia_cor": "ok", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "Lead fresco. Priorizar contato." },
-          { "nome": "Guilherme", "data": "Hoje", "dias": 0, "dias_nivel": "ok", "tags": [{"texto":"TENT_1","cor":"default"}], "cadencia": "Novo", "cadencia_cor": "ok", "decisao": "STAND-BY", "decisao_tipo": "standby", "acao": "Cadencia normal." },
-          { "nome": "Pai e filho", "data": "Ontem", "dias": 1, "dias_nivel": "ok", "tags": [{"texto":"TENT_1","cor":"default"}], "cadencia": "OK", "cadencia_cor": "ok", "decisao": "STAND-BY", "decisao_tipo": "standby", "acao": "No prazo." },
-          { "nome": "Ana", "data": "Ontem", "dias": 1, "dias_nivel": "ok", "tags": [{"texto":"Meta Ads","cor":"default"}], "cadencia": "OK", "cadencia_cor": "ok", "decisao": "STAND-BY", "decisao_tipo": "standby", "acao": "No prazo." },
-          { "nome": "Henry Proctor", "empresa": "Auction Technology", "data": "Ontem", "dias": 1, "dias_nivel": "ok", "tags": [{"texto":"TENT_1","cor":"amber"}], "cadencia": "OK", "cadencia_cor": "ok", "decisao": "STAND-BY", "decisao_tipo": "standby", "acao": "Verificar se e ICP real." },
-          { "nome": "Maria Das Dores", "data": "30/03", "dias": 2, "dias_nivel": "ok", "tags": [{"texto":"TENT_1","cor":"amber"}], "cadencia": "Atraso", "cadencia_cor": "late", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "Fazer segunda tentativa." },
-          { "nome": "Paulo", "data": "30/03", "dias": 2, "dias_nivel": "ok", "tags": [{"texto":"TENT_3","cor":"amber"}], "cadencia": "OK", "cadencia_cor": "ok", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "3 tentativas. Se nao respondeu, Lost." },
-          { "nome": "Wanessa Lima", "data": "30/03", "dias": 2, "dias_nivel": "ok", "tags": [{"texto":"TENT_3","cor":"amber"}], "cadencia": "OK", "cadencia_cor": "ok", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "3 tentativas. Se nao respondeu, Lost." },
-          { "nome": "Rogerio", "data": "29/03", "dias": 3, "dias_nivel": "ok", "tags": [{"texto":"TENT_1","cor":"amber"}], "cadencia": "Atraso", "cadencia_cor": "late", "decisao": "AGIR", "decisao_tipo": "agir", "acao": "Fazer segunda tentativa." },
-          { "nome": "Ilda Carvalho", "data": "27/03", "dias": 5, "dias_nivel": "warn", "tags": [{"texto":"TENT_3","cor":"red"}], "cadencia": "Esgotado", "cadencia_cor": "dead", "decisao": "PERDER", "decisao_tipo": "perder", "acao": "3 tentativas sem resposta. Lost." },
-          { "nome": "Alexsandro Costa", "empresa": "cego.com", "data": "27/03", "dias": 5, "dias_nivel": "warn", "tags": [{"texto":"TENT_4","cor":"red"}], "cadencia": "Esgotado", "cadencia_cor": "dead", "decisao": "PERDER", "decisao_tipo": "perder", "acao": "4 tentativas. Lost." }
-        ]
-      }
-    ]
+    "etapas": []
   },
   "marketing": {
-    "novos_leads_hoje": 9,
+    "novos_leads_hoje": 0,
     "meta_diaria": 8,
-    "deveriam_ter": 8,
+    "deveriam_ter": 16,
     "leads_meta_formula": "227 leads / 30 dias",
-    "pct_acima_meta": 12.5,
-    "novos_mqls_hoje": 1,
+    "pct_acima_meta": 0,
+    "novos_mqls_hoje": 0,
     "meta_mql_diaria": 1,
-    "taxa_qualificacao": 11.1,
+    "taxa_qualificacao": 0,
     "taxa_qualificacao_benchmark": 15,
-    "leads_novos": [
-      { "nome": "Sheldon", "horario": "18:06", "etapa": "Entrada", "origem": null, "qualificado": false },
-      { "nome": "Nayrlla | Resolve Company", "horario": "16:31", "etapa": "Entrada", "origem": null, "qualificado": false },
-      { "nome": "ERICSON", "horario": "16:15", "etapa": "Entrada", "origem": null, "qualificado": false },
-      { "nome": "Dolores Soares", "horario": "14:55", "etapa": "Entrada", "origem": null, "qualificado": false },
-      { "nome": "Dr. Joao, MYDOC BRASIL", "horario": "17:05", "etapa": "Em Contato", "origem": "Meta Ads", "qualificado": false },
-      { "nome": "Antonio Cicero, Plamed", "horario": "16:49", "etapa": "Em Contato", "origem": "Meta Ads", "qualificado": false },
-      { "nome": "Centro Educ. Dolores Soares", "horario": "14:55", "etapa": "Em Contato", "origem": "Meta Ads", "qualificado": false },
-      { "nome": "Guilherme", "horario": "05:21", "etapa": "Em Contato", "origem": null, "qualificado": false },
-      { "nome": "Diogo Viana", "horario": "09:57", "etapa": "Qualificado (MQL)", "origem": "Meta Ads", "qualificado": true }
-    ],
-    "diagnostico": [
-      { "area": "Volume de Entrada", "texto": "9 leads novos no dia 1 (meta diaria: ~8). Marketing entregou 12.5% acima da meta. Se mantiver, projecao de ~270 leads/mes (meta: 227)." },
-      { "area": "Qualificacao (MQL)", "texto": "Dos 9 novos leads, apenas 1 foi qualificado (Diogo Viana) = taxa de 11.1%. Benchmark: 15%. Ligeiramente abaixo, mas e dia 1." },
-      { "area": "Distribuicao", "texto": "4 leads ainda na Entrada, 4 ja Em Contato, 1 ja Qualificado." },
-      { "area": "Origem", "texto": "4 dos 9 leads vieram via Meta Ads. Os outros 5 vieram por canais diretos (WhatsApp/Site)." }
-    ],
+    "leads_novos": [],
+    "diagnostico": [],
     "projecao": {
-      "dias_labels": ["Dia 1", "Dia 2", "Dia 3", "Dia 4", "Dia 5", "Dia 6", "Dia 7"],
-      "meta_acumulada": [8, 15, 23, 30, 38, 45, 53],
-      "real_acumulado": [9, null, null, null, null, null, null]
+      "dias_labels": [
+        "Dia 1",
+        "Dia 2",
+        "Dia 3",
+        "Dia 4",
+        "Dia 5",
+        "Dia 6",
+        "Dia 7",
+        "Dia 8"
+      ],
+      "meta_acumulada": [
+        8,
+        16,
+        24,
+        32,
+        40,
+        48,
+        56,
+        64
+      ],
+      "real_acumulado": [
+        null,
+        0,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
     }
   },
   "status_review": {
     "taxas": [
-      { "nome": "Lead \u2192 MQL", "real": 41.7, "benchmark": 15.0 },
-      { "nome": "MQL \u2192 Reuniao", "real": 60.0, "benchmark": 59.7 },
-      { "nome": "Reuniao \u2192 Proposta", "real": 266.7, "benchmark": 69.6 },
-      { "nome": "Proposta \u2192 Venda", "real": 0, "benchmark": 50.0 }
+      {
+        "nome": "Lead → MQL",
+        "real": 0,
+        "benchmark": 15
+      },
+      {
+        "nome": "MQL → Reuniao",
+        "real": 0,
+        "benchmark": 59.7
+      },
+      {
+        "nome": "Reuniao → Proposta",
+        "real": 0,
+        "benchmark": 69.6
+      },
+      {
+        "nome": "Proposta → Venda",
+        "real": 0,
+        "benchmark": 50
+      }
     ],
-    "top_oportunidades": [
-      { "cor": "green", "html": "<strong>Like Odonto</strong> \u2014 R$7.550, ICP perfeito, ja disse SIM" },
-      { "cor": "blue", "html": "<strong>Aderson (Proj. Perpetuo)</strong> \u2014 R$4.697, follow-up ativo" },
-      { "cor": "blue", "html": "<strong>Mesquita (CrossFight)</strong> \u2014 R$3.320, bom ICP" }
-    ],
+    "top_oportunidades": [],
     "top_problemas": [
-      { "cor": "red", "html": "<strong>Win rate 0%</strong> \u2014 nenhuma venda fechada em abril" },
-      { "cor": "amber", "html": "<strong>7 leads mortos</strong> \u2014 ~R$18k irreal no pipeline" },
-      { "cor": "amber", "html": "<strong>Volume insuficiente</strong> \u2014 12 vs 57 leads/semana" }
+      {
+        "cor": "red",
+        "html": "<strong>Win rate 0%</strong> — nenhuma venda fechada"
+      },
+      {
+        "cor": "amber",
+        "html": "<strong>0 leads mortos</strong> — pipeline inflado"
+      }
     ]
   },
   "charts": {
     "evo_chart": {
-      "labels": ["Entrada", "Em Contato", "Qualificado", "Reuniao", "Proposta", "Venda"],
-      "data": [4, 4, 1, 0, 0, 0],
-      "colors": ["#959595", "#5E97E4", "#8B5CF6", "#3B82F6", "#F59E0B", "#10B981"]
+      "labels": [
+        "Entrada",
+        "Em Contato",
+        "Qualificado",
+        "Reuniao",
+        "Proposta",
+        "Aguard."
+      ],
+      "data": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "colors": [
+        "#959595",
+        "#5E97E4",
+        "#8B5CF6",
+        "#3B82F6",
+        "#F59E0B",
+        "#10B981"
+      ]
     },
     "value_chart": {
-      "labels": ["Entrada", "Contato", "MQLs", "Reuniao", "Proposta", "Aguard."],
-      "data": [0, 0, 3280, 3320, 26480, 12247],
-      "colors": ["#3A3A3A", "#3A3A3A", "#9E8FD0", "#5E97E4", "#F59E0B", "#10B981"]
+      "labels": [
+        "Entrada",
+        "Em Contato",
+        "Qualificado",
+        "Reuniao",
+        "Proposta",
+        "Aguard."
+      ],
+      "data": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "colors": [
+        "#3A3A3A",
+        "#3A3A3A",
+        "#9E8FD0",
+        "#5E97E4",
+        "#F59E0B",
+        "#10B981"
+      ]
     },
     "funnel_chart": {
-      "labels": ["Entrada", "Contato", "MQLs", "Reuniao", "Proposta", "Aguard."],
-      "data": [1, 11, 5, 3, 8, 2]
+      "labels": [
+        "Entrada",
+        "Em Contato",
+        "Qualificado",
+        "Reuniao",
+        "Proposta",
+        "Aguard."
+      ],
+      "data": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
     },
     "decision_chart": {
-      "labels": ["Perder", "Agir Agora", "Stand-by", "Urgente"],
-      "data": [9, 8, 8, 3],
-      "colors": ["#EF4444", "#3B82F6", "#959595", "#FC7D8E"]
+      "labels": [
+        "Perder",
+        "Agir Agora",
+        "Stand-by",
+        "Urgente"
+      ],
+      "data": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "colors": [
+        "#EF4444",
+        "#3B82F6",
+        "#959595",
+        "#FC7D8E"
+      ]
     }
   }
 }

@@ -764,6 +764,179 @@ function renderCharts(charts, mkt) {
   }
 }
 
+function adaptData(r) {
+  // If data already has old format (from mock), return as-is
+  if (r.alerts && r.alerts[0] && r.alerts[0].type) return r;
+
+  const k = r.kpis || {};
+  const m = r.meta || {};
+  const aguardando = (r.pipeline_leads?.aguardando || []);
+  const valorAguardando = aguardando.reduce((s,l) => s + (l.valor||0), 0);
+  const leadsAtivos = k.leads_ativos || 0;
+  const leadsParaLost = k.leads_risco_perda || 0;
+  const lostPct = leadsAtivos > 0 ? Math.round(leadsParaLost / leadsAtivos * 1000) / 10 : 0;
+
+  // Adapt alerts
+  const alerts = (r.alerts || []).map(a => ({
+    type: a.tipo === 'danger' ? 'danger' : a.tipo === 'warning' ? 'warning' : 'info',
+    icon: a.tipo === 'danger' ? 'Urgente' : a.tipo === 'warning' ? 'Atencao' : 'Info',
+    message: a.msg,
+    count: 0
+  }));
+
+  // Adapt KPIs
+  const kpis = {
+    leads_ativos: leadsAtivos,
+    valor_pipeline: k.valor_pipeline || 0,
+    valor_pipeline_real: k.valor_pipeline || 0,
+    ticket_medio: k.ticket_medio || 0,
+    ticket_benchmark: k.ticket_benchmark || 2500,
+    vendas_atual: k.vendas || 0,
+    vendas_meta: k.meta_vendas || 7,
+    mes_label: (m.month_name || 'abril') + ' ' + (m.year || 2026),
+    prox_fechamento_valor: valorAguardando,
+    prox_fechamento_label: 'aguardando pagamento',
+    leads_para_lost: leadsParaLost,
+    leads_para_lost_pct: lostPct,
+    pipeline_real_apos_limpeza: leadsAtivos - leadsParaLost,
+    pipeline_real_valor: k.valor_pipeline || 0
+  };
+
+  // Adapt meta
+  const meta = {
+    generated_at: m.generated_at ? new Date().toISOString() : new Date().toISOString(),
+    period_start: m.period_start || new Date().toISOString().slice(0,10).replace(/-\d\d$/, '-01'),
+    period_end: m.period_end || new Date().toISOString().slice(0,10),
+    day_of_month: m.day_of_month || new Date().getDate(),
+    days_in_month: 30,
+    week_number: m.week_number || Math.ceil((m.day_of_month||1) / 7),
+    week_day: m.week_day || ['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'][new Date().getDay()],
+    month_name: m.month_name || 'Abril',
+    year: m.year || 2026,
+    client_name: m.client_name || 'Atacama Digital'
+  };
+
+  // Adapt funnel_metas
+  const funnelEtapas = (r.funnel_metas || []).map(f => {
+    const resp = ['entrada','mql'].includes(f.etapa) ? 'MKT' : 'COM';
+    const prog = f.progresso || 0;
+    const status = prog >= 100 ? 'ACIMA' : prog >= 50 ? 'OK' : 'ATRAS';
+    return {
+      nome: f.label, resp, benchmark_pct: f.meta ? (f.meta > 100 ? '100%' : f.meta + '') : '—',
+      atual: f.atual, meta_mes: f.meta || 0, proporcional: 0,
+      progresso_pct: prog, status
+    };
+  });
+  const funnel_metas = {
+    meta_vendas: k.meta_vendas || 7, ticket_benchmark: k.ticket_benchmark || 2500,
+    revenue_alvo: k.revenue_alvo || 17500, leads_meta_mes: 227,
+    leads_semana_atual: 0, revenue_projetado: k.receita_fechada || 0,
+    win_rate_alvo: 50, etapas: funnelEtapas, diagnostico: []
+  };
+
+  // Adapt movimentacao
+  const mov = r.movimentacao || {};
+  const movimentacao = {
+    semana_label: 'Semana ' + String(meta.week_number).padStart(2,'0'),
+    entraram: mov.entraram || 0, avancaram: mov.avancaram || 0,
+    recomendados_lost: leadsParaLost,
+    detalhes: [
+      { descricao: '+ Novos leads hoje', qtd: '+' + (mov.entraram||0), cor: 'green', detalhe: '' },
+      { descricao: 'Avancaram de etapa', qtd: String(mov.avancaram||0), cor: 'blue', detalhe: '' }
+    ],
+    leitura: 'Dados gerados automaticamente pelo N8N.'
+  };
+
+  // Adapt taxas
+  const taxas_conversao = {
+    nota: 'Taxas calculadas automaticamente.',
+    taxas: (r.taxas_conversao || []).map(t => ({
+      nome: t.etapa, descricao: '', real: t.real, benchmark: t.benchmark,
+      bar_pct: t.benchmark > 0 ? Math.min(Math.round(t.real / t.benchmark * 100), 100) : 0,
+      status_text: 'Alvo: ' + t.benchmark + '%',
+      status_cor: t.real >= t.benchmark ? 'green' : t.real > 0 ? 'amber' : 'muted',
+      nota: ''
+    }))
+  };
+
+  // Adapt compliance
+  const compliance = {
+    score_geral: null, nota: 'Preenchimento automatico',
+    categorias: (r.compliance || []).map((c,i) => ({
+      nome: c.item, peso: 25, score: c.status === 'ok' ? 100 : null,
+      items: [{ texto: c.item, ok: c.status === 'ok' }]
+    }))
+  };
+
+  // Adapt acoes
+  const acoes = (r.acoes || []).map(a => ({
+    prioridade: a.tipo === 'danger' ? 'urgente' : a.tipo === 'warning' ? 'importante' : 'normal',
+    html: '<strong>' + a.acao + '</strong>'
+  }));
+
+  // Adapt pipeline_leads
+  const groupLabels = { entrada:'Entrada', em_contato:'Em Contato', mql:'Qualificados (MQL)', reuniao:'Reuniao Agendada', proposta:'Proposta Enviada', aguardando:'Aguardando Pagamento' };
+  const groupBadge = { entrada:'default', em_contato:'default', mql:'purple', reuniao:'blue', proposta:'amber', aguardando:'green' };
+  const groupOrder = ['aguardando','proposta','reuniao','mql','em_contato','entrada'];
+  const pipeline_leads = { etapas: groupOrder.map(g => {
+    const leads = r.pipeline_leads?.[g] || [];
+    const valor = leads.reduce((s,l) => s + (l.valor||0), 0);
+    return {
+      nome: groupLabels[g] || g, badge_cor: groupBadge[g] || 'default',
+      count: leads.length, valor: valor || null,
+      colunas: ['Lead','Valor','Dias','Tags','Cadencia','Decisao','Acao'],
+      leads: leads.map(l => {
+        const diasN = l.idade_dias >= 10 ? 'danger' : l.idade_dias >= 5 ? 'warn' : 'ok';
+        const cadCor = l.cadencia === 'urgente' ? 'dead' : l.cadencia === 'acelerada' ? 'late' : l.cadencia === 'atrasada' ? 'late' : 'ok';
+        const decTipo = l.decisao === 'perder_ou_reativar' ? 'urgente' : l.decisao === 'avançar' || l.decisao === 'avancar' ? 'agir' : 'standby';
+        const decLabel = l.decisao === 'perder_ou_reativar' ? 'DECIDIR' : l.decisao === 'avançar' || l.decisao === 'avancar' ? 'AGIR' : 'STAND-BY';
+        return {
+          nome: l.nome?.replace(/^Lead #\d+$/, 'Lead ' + l.id) || 'Sem nome',
+          empresa: l.contato !== 'Sem contato' ? l.contato : null,
+          valor: l.valor > 0 ? 'R$' + l.valor.toLocaleString('pt-BR') : null,
+          valor_cor: l.valor >= 5000 ? 'green' : l.valor >= 3000 ? 'amber' : null,
+          dias: l.idade_dias || 0, dias_nivel: diasN,
+          tags: [{ texto: l.etapa?.split(' ').pop() || '', cor: 'default' }],
+          cadencia: l.cadencia || 'normal', cadencia_cor: cadCor,
+          decisao: decLabel, decisao_tipo: decTipo,
+          acao: l.decisao === 'perder_ou_reativar' ? 'Decidir: reativar ou Lost' : l.decisao === 'avançar' || l.decisao === 'avancar' ? 'Follow-up urgente' : 'Cadencia normal'
+        };
+      })
+    };
+  }).filter(e => e.count > 0) };
+
+  // Adapt marketing
+  const mkt = r.marketing || {};
+  const marketing = {
+    novos_leads_hoje: mkt.leads_novos_hoje || 0, meta_diaria: Math.round(227/30),
+    deveriam_ter: Math.round(227/30 * (m.day_of_month||1)),
+    leads_meta_formula: '227 / 30 dias', pct_acima_meta: 0,
+    novos_mqls_hoje: mkt.mqls_hoje || 0, meta_mql_diaria: 1,
+    taxa_qualificacao: 0, taxa_qualificacao_benchmark: 15,
+    leads_novos: [], diagnostico: [],
+    projecao: { dias_labels: ['Dia 1'], meta_acumulada: [8], real_acumulado: [mkt.leads_novos_hoje || 0] }
+  };
+
+  // Adapt status_review
+  const sr = r.status_review || {};
+  const status_review = {
+    taxas: (sr.taxas_conversao || []).map(t => ({ nome: t.etapa, real: t.real, benchmark: t.benchmark })),
+    top_oportunidades: (sr.top_oportunidades || []).map(o => ({ cor: 'green', html: '<strong>' + (o.nome||'').substring(0,40) + '</strong> — R$' + (o.valor||0).toLocaleString('pt-BR') + ' (' + (o.etapa||'') + ')' })),
+    top_problemas: (sr.top_problemas || []).map(p => ({ cor: 'red', html: '<strong>' + (p.nome||'').substring(0,40) + '</strong> — ' + (p.idade_dias||0) + 'd (' + (p.etapa||'') + ')' }))
+  };
+
+  // Adapt charts
+  const ch = r.charts || {};
+  const charts = {
+    evo_chart: { labels: ch.funil?.labels || [], data: ch.funil?.datasets?.[0]?.data || [], colors: ['#959595','#5E97E4','#8B5CF6','#3B82F6','#F59E0B','#10B981'] },
+    value_chart: { labels: ch.pipeline_valor?.labels || [], data: ch.pipeline_valor?.datasets?.[0]?.data || [], colors: ['#3A3A3A','#3A3A3A','#9E8FD0','#5E97E4','#F59E0B','#10B981'] },
+    funnel_chart: { labels: ch.funil?.labels || [], data: ch.funil?.datasets?.[0]?.data || [] },
+    decision_chart: { labels: ['Manter','Avancar','Decidir'], data: [leadsAtivos - (k.leads_urgentes||0) - leadsParaLost, k.leads_urgentes||0, leadsParaLost], colors: ['#959595','#3B82F6','#EF4444'] }
+  };
+
+  return { meta, alerts, kpis, funnel_metas, movimentacao, cohort: [], taxas_conversao, compliance, acoes, pipeline_leads, marketing, status_review, charts };
+}
+
 async function init() {
   try {
     const [dataResp, configResp] = await Promise.all([
@@ -771,8 +944,11 @@ async function init() {
       fetch('./client-config.json').catch(() => null)
     ]);
     if (!dataResp.ok) throw new Error('Dados nao encontrados');
-    const D = await dataResp.json();
+    const raw = await dataResp.json();
     const config = configResp?.ok ? await configResp.json() : null;
+
+    // Adapter: convert new Code node format to dashboard HTML format
+    const D = adaptData(raw);
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('app').style.display = 'block';

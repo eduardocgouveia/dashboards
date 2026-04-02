@@ -981,9 +981,10 @@ function adaptData(r) {
   };
 
   // Adapt taxas
+  const rawTaxas = Array.isArray(r.taxas_conversao) ? r.taxas_conversao : [];
   const taxas_conversao = {
     nota: 'Taxas calculadas automaticamente.',
-    taxas: (r.taxas_conversao || []).map(t => ({
+    taxas: rawTaxas.map(t => ({
       nome: t.etapa, descricao: '', real: t.real, benchmark: t.benchmark,
       bar_pct: t.benchmark > 0 ? Math.min(Math.round(t.real / t.benchmark * 100), 100) : 0,
       status_text: 'Alvo: ' + t.benchmark + '%',
@@ -995,14 +996,14 @@ function adaptData(r) {
   // Adapt compliance
   const compliance = {
     score_geral: null, nota: 'Preenchimento automatico',
-    categorias: (r.compliance || []).map((c,i) => ({
+    categorias: (Array.isArray(r.compliance) ? r.compliance : []).map((c,i) => ({
       nome: c.item, peso: 25, score: c.status === 'ok' ? 100 : null,
       items: [{ texto: c.item, ok: c.status === 'ok' }]
     }))
   };
 
   // Adapt acoes
-  const acoes = (r.acoes || []).map(a => ({
+  const acoes = (Array.isArray(r.acoes) ? r.acoes : []).map(a => ({
     prioridade: a.tipo === 'danger' ? 'urgente' : a.tipo === 'warning' ? 'importante' : 'normal',
     html: '<strong>' + a.acao + '</strong>'
   }));
@@ -1053,9 +1054,9 @@ function adaptData(r) {
   // Adapt status_review
   const sr = r.status_review || {};
   const status_review = {
-    taxas: (sr.taxas_conversao || []).map(t => ({ nome: t.etapa, real: t.real, benchmark: t.benchmark })),
-    top_oportunidades: (sr.top_oportunidades || []).map(o => ({ cor: 'green', html: '<strong>' + (o.nome||'').substring(0,40) + '</strong> — R$' + (o.valor||0).toLocaleString('pt-BR') + ' (' + (o.etapa||'') + ')' })),
-    top_problemas: (sr.top_problemas || []).map(p => ({ cor: 'red', html: '<strong>' + (p.nome||'').substring(0,40) + '</strong> — ' + (p.idade_dias||0) + 'd (' + (p.etapa||'') + ')' }))
+    taxas: (Array.isArray(sr.taxas_conversao) ? sr.taxas_conversao : []).map(t => ({ nome: t.etapa, real: t.real, benchmark: t.benchmark })),
+    top_oportunidades: (Array.isArray(sr.top_oportunidades) ? sr.top_oportunidades : []).map(o => ({ cor: 'green', html: '<strong>' + (o.nome||'').substring(0,40) + '</strong> — R$' + (o.valor||0).toLocaleString('pt-BR') + ' (' + (o.etapa||'') + ')' })),
+    top_problemas: (Array.isArray(sr.top_problemas) ? sr.top_problemas : []).map(p => ({ cor: 'red', html: '<strong>' + (p.nome||'').substring(0,40) + '</strong> — ' + (p.idade_dias||0) + 'd (' + (p.etapa||'') + ')' }))
   };
 
   // Adapt charts

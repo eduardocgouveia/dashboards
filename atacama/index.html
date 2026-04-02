@@ -467,7 +467,7 @@ function renderFunnel(f, m) {
   }).join('');
 
   const vendaPct = f.meta_vendas > 0 ? Math.round((m.kpis.vendas_atual / f.meta_vendas) * 100) : 0;
-  const diagHtml = f.diagnostico.map(d => `<strong>${d.area}:</strong> ${d.texto}`).join('<br>');
+  const diagHtml = (f.diagnostico || []).map(d => `<strong>${d.area}:</strong> ${d.texto}`).join('<br>');
 
   el.innerHTML = `
     <p class="eyebrow">Funil de Metas</p>
@@ -948,17 +948,18 @@ function adaptData(r) {
     client_name: m.client_name || 'Atacama Digital'
   };
 
-  // Adapt funnel_metas
-  const funnelEtapas = (r.funnel_metas || []).map(f => {
-    const resp = ['entrada','mql'].includes(f.etapa) ? 'MKT' : 'COM';
-    const prog = f.progresso || 0;
-    const status = prog >= 100 ? 'ACIMA' : prog >= 50 ? 'OK' : 'ATRAS';
-    return {
-      nome: f.label, resp, benchmark_pct: f.meta ? (f.meta > 100 ? '100%' : f.meta + '') : '—',
-      atual: f.atual, meta_mes: f.meta || 0, proporcional: 0,
-      progresso_pct: prog, status
-    };
-  });
+  // Adapt funnel_metas (handle both old and new format)
+  const rawFunnel = r.funnel_metas || [];
+  const funnelArray = Array.isArray(rawFunnel) ? rawFunnel : [];
+  const funnelEtapas = funnelArray.map(f => ({
+    nome: f.label || f.nome || '', resp: f.resp || 'COM',
+    benchmark_pct: f.benchmark_pct || '—',
+    atual: f.atual || 0, meta_mes: f.meta || f.meta_mes || 0,
+    proporcional: f.meta_proporcional || 0,
+    progresso_pct: f.progresso || 0,
+    status: f.status || 'ATRAS',
+    taxa_real: f.taxa_real || null
+  }));
   const funnel_metas = {
     meta_vendas: k.meta_vendas || 7, ticket_benchmark: k.ticket_benchmark || 2500,
     revenue_alvo: k.revenue_alvo || 17500, leads_meta_mes: 227,

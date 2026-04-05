@@ -1,12 +1,12 @@
 {
   "meta": {
-    "generated_at": "2026-04-03T22:00:05.082Z",
+    "generated_at": "2026-04-05T14:19:06.562Z",
     "period_start": "2026-04-01",
     "period_end": "2026-04-30",
-    "day_of_month": 3,
+    "day_of_month": 5,
     "days_in_month": 30,
     "week_number": 1,
-    "week_day": "Sexta-feira",
+    "week_day": "Domingo",
     "month_name": "Abril",
     "year": 2026,
     "client_name": "Atacama Digital"
@@ -43,7 +43,7 @@
         "benchmark_pct": "100%",
         "atual": 0,
         "meta_mes": 227,
-        "proporcional": 24,
+        "proporcional": 40,
         "progresso_pct": 0,
         "status": "ATRAS"
       },
@@ -53,7 +53,7 @@
         "benchmark_pct": "15%",
         "atual": 0,
         "meta_mes": 34,
-        "proporcional": 3,
+        "proporcional": 6,
         "progresso_pct": 100,
         "status": "ACIMA"
       },
@@ -262,7 +262,7 @@
   "marketing": {
     "novos_leads_hoje": 0,
     "meta_diaria": 8,
-    "deveriam_ter": 24,
+    "deveriam_ter": 40,
     "leads_meta_formula": "227 leads / 30 dias",
     "pct_acima_meta": 0,
     "novos_mqls_hoje": 0,
@@ -281,7 +281,9 @@
         "Dia 6",
         "Dia 7",
         "Dia 8",
-        "Dia 9"
+        "Dia 9",
+        "Dia 10",
+        "Dia 11"
       ],
       "meta_acumulada": [
         8,
@@ -292,9 +294,13 @@
         48,
         56,
         64,
-        72
+        72,
+        80,
+        88
       ],
       "real_acumulado": [
+        null,
+        null,
         null,
         null,
         0,

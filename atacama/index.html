@@ -962,9 +962,9 @@ function adaptData(r) {
   }));
   const funnel_metas = {
     meta_vendas: k.meta_vendas || 7, ticket_benchmark: k.ticket_benchmark || 2500,
-    revenue_alvo: k.revenue_alvo || 17500, leads_meta_mes: 227,
-    leads_semana_atual: 0, revenue_projetado: k.receita_fechada || 0,
-    win_rate_alvo: 50, etapas: funnelEtapas, diagnostico: []
+    revenue_alvo: k.revenue_alvo || 17500, leads_meta_mes: (r.marketing?.meta_mes) || 143,
+    leads_semana_atual: Math.round((r.marketing?.leads_novos_hoje || 0) * 5), revenue_projetado: k.receita_fechada || 0,
+    win_rate_alvo: 30, etapas: funnelEtapas, diagnostico: []
   };
 
   // Adapt movimentacao
@@ -1042,9 +1042,9 @@ function adaptData(r) {
   // Adapt marketing
   const mkt = r.marketing || {};
   const marketing = {
-    novos_leads_hoje: mkt.leads_novos_hoje || 0, meta_diaria: Math.round(227/30),
-    deveriam_ter: Math.round(227/30 * (m.day_of_month||1)),
-    leads_meta_formula: '227 / 30 dias', pct_acima_meta: 0,
+    novos_leads_hoje: mkt.leads_novos_hoje || 0, meta_diaria: Math.round(143/30),
+    deveriam_ter: Math.round(143/30 * (m.day_of_month||1)),
+    leads_meta_formula: '143 / 30 dias', pct_acima_meta: 0,
     novos_mqls_hoje: mkt.mqls_hoje || 0, meta_mql_diaria: 1,
     taxa_qualificacao: 0, taxa_qualificacao_benchmark: 15,
     leads_novos: [], diagnostico: [],

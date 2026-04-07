@@ -323,10 +323,10 @@
     <a href="#funil">Funil</a>
     <a href="#performance">Performance</a>
     <a href="#compliance">Compliance</a>
-    <a href="#plano-acao">Plano de Acao</a>
+    <a href="#plano-acao">Plano de Ação</a>
     <a href="#pipeline">Pipeline</a>
     <a href="#marketing">Marketing</a>
-    <a href="#inteligencia">Inteligencia</a>
+    <a href="#inteligencia">Inteligência</a>
     <a href="#status">Status</a>
   </div>
 </nav>
@@ -361,7 +361,7 @@
   <div class="section-inner section-pad" id="funnel-section"></div>
 </section>
 
-<!-- PERFORMANCE / MOVIMENTACAO -->
+<!-- PERFORMANCE / MOVIMENTAÇÃO -->
 <section id="performance" class="section-cosmos" style="position:relative;">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 70%,rgba(27,104,184,0.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 30%,rgba(156,31,39,0.06) 0%,transparent 40%);"></div>
   <div class="grid-lines"><div class="vl gl"></div><div class="vl gr"></div></div>
@@ -422,7 +422,7 @@ function renderHero(m, config) {
   }
   const startDate = m.period_start ? m.period_start.split('-').reverse().join('/') : '01/' + String(new Date().getMonth()+1).padStart(2,'0');
   const endDate = m.period_end ? m.period_end.split('-').reverse().join('/') : new Date().toLocaleDateString('pt-BR');
-  document.getElementById('hero-info').innerHTML = `<strong>Periodo:</strong> ${startDate} a ${endDate} (Dia ${m.day_of_month} de ${m.days_in_month}) &nbsp;|&nbsp; Semana ${String(m.week_number).padStart(2,'0')} &nbsp;|&nbsp; ${m.week_day} &nbsp;|&nbsp; <span style="color:var(--chart-amber);">Atualizado as ${h}</span>`;
+  document.getElementById('hero-info').innerHTML = `<strong>Período:</strong> ${startDate} a ${endDate} (Dia ${m.day_of_month} de ${m.days_in_month}) &nbsp;|&nbsp; Semana ${String(m.week_number).padStart(2,'0')} &nbsp;|&nbsp; ${m.week_day} &nbsp;|&nbsp; <span style="color:var(--chart-amber);">Atualizado às ${h}</span>`;
   document.getElementById('hero-coords').textContent = config?.coords || '';
 }
 
@@ -434,10 +434,10 @@ function renderAlerts(alerts) {
 function renderKPIs(k) {
   document.getElementById('kpis-container').innerHTML = `<div class="kpi-grid">
     <div class="kpi-card kpi-highlight"><div class="label">Leads Ativos</div><div class="value v-blue">${k.leads_ativos}</div><div class="sub">no pipeline</div></div>
-    <div class="kpi-card"><div class="label">Valor Pipeline</div><div class="value">${fmtR(k.valor_pipeline)}</div><div class="sub">${fmtR(k.valor_pipeline_real)} real apos limpeza</div></div>
-    <div class="kpi-card"><div class="label">Ticket Medio</div><div class="value">R$${fmt(k.ticket_medio)}</div><div class="benchmark">benchmark: R$${fmt(k.ticket_benchmark)}</div></div>
+    <div class="kpi-card"><div class="label">Valor Pipeline</div><div class="value">${fmtR(k.valor_pipeline)}</div><div class="sub">${fmtR(k.valor_pipeline_real)} real após limpeza</div></div>
+    <div class="kpi-card"><div class="label">Ticket Médio</div><div class="value">R$${fmt(k.ticket_medio)}</div><div class="benchmark">benchmark: R$${fmt(k.ticket_benchmark)}</div></div>
     <div class="kpi-card kpi-danger"><div class="label">Vendas / Meta</div><div class="value v-red">${k.vendas_atual} / ${k.vendas_meta}</div><div class="sub">${k.mes_label}</div></div>
-    <div class="kpi-card kpi-success"><div class="label">Prox. Fechamento</div><div class="value v-green">${fmtR(k.prox_fechamento_valor)}</div><div class="sub">${k.prox_fechamento_label}</div></div>
+    <div class="kpi-card kpi-success"><div class="label">Próx. Fechamento</div><div class="value v-green">${fmtR(k.prox_fechamento_valor)}</div><div class="sub">${k.prox_fechamento_label}</div></div>
     <div class="kpi-card kpi-danger"><div class="label">Leads para Lost</div><div class="value v-red">${k.leads_para_lost}</div><div class="sub">de ${k.leads_ativos} ativos = ${k.leads_para_lost_pct}% de perda</div></div>
   </div>`;
 
@@ -456,7 +456,7 @@ function renderKPIs(k) {
       <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${lostPct}%;background:var(--chart-red);border-radius:2px;"></div></div>
     </div>
     <div style="background:var(--gray-90);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:16px;text-align:center;">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-green);margin-bottom:6px;font-weight:500;">Pipeline Real Apos Limpeza</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-green);margin-bottom:6px;font-weight:500;">Pipeline Real Após Limpeza</div>
       <div style="font-size:32px;font-weight:800;color:var(--chart-green);">${k.pipeline_real_apos_limpeza}</div>
       <div style="font-size:12px;color:var(--gray-40);">leads reais = ${fmtR(k.pipeline_real_valor)}</div>
       <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${realPct}%;background:var(--chart-green);border-radius:2px;"></div></div>
@@ -482,7 +482,7 @@ function renderFunnel(f, m) {
 
   const mesCards = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
     <div style="background:${statusBg(novosPct)};border:1px solid ${statusBorder(novosPct)};border-radius:12px;padding:16px;text-align:center;">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Novos Leads no Mes</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Novos Leads no Mês</div>
       <div style="font-size:32px;font-weight:800;color:${statusCol(novosPct)};">${mes.novos_leads}</div>
       <div style="font-size:12px;color:var(--text-muted);">meta: ${mes.novos_meta} | proporcional: ~${mes.novos_proporcional}</div>
       <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${Math.min(novosPct, 100)}%;background:${statusCol(novosPct)};border-radius:2px;"></div></div>
@@ -490,7 +490,7 @@ function renderFunnel(f, m) {
     <div style="background:${statusBg(wonPct)};border:1px solid ${statusBorder(wonPct)};border-radius:12px;padding:16px;text-align:center;">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Vendas Fechadas</div>
       <div style="font-size:32px;font-weight:800;color:${statusCol(wonPct)};">${mes.won}</div>
-      <div style="font-size:12px;color:var(--text-muted);">meta: ${mes.won_meta}/mes</div>
+      <div style="font-size:12px;color:var(--text-muted);">meta: ${mes.won_meta}/mês</div>
       <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${Math.min(wonPct, 100)}%;background:${statusCol(wonPct)};border-radius:2px;"></div></div>
     </div>
     <div style="background:${statusBg(recPct)};border:1px solid ${statusBorder(recPct)};border-radius:12px;padding:16px;text-align:center;">
@@ -500,7 +500,7 @@ function renderFunnel(f, m) {
       <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${Math.min(recPct, 100)}%;background:${statusCol(recPct)};border-radius:2px;"></div></div>
     </div>
     <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:16px;text-align:center;">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Perdidos no Mes</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Perdidos no Mês</div>
       <div style="font-size:32px;font-weight:800;color:var(--chart-red);">${mes.lost}</div>
       <div style="font-size:12px;color:var(--text-muted);">valor: ${fmtR(mes.lost_valor)}</div>
     </div>
@@ -538,8 +538,8 @@ function renderFunnel(f, m) {
     ${mesCards}
 
     <div class="glass-card" style="background:var(--white);border-color:var(--border-light);margin-bottom:20px;">
-      <h3 style="margin-bottom:4px;">Onde estao seus leads agora</h3>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Snapshot do pipeline — posicao atual de cada lead ativo (${m.kpis.leads_ativos} leads)</p>
+      <h3 style="margin-bottom:4px;">Onde estão seus leads agora</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Snapshot do pipeline — posição atual de cada lead ativo (${m.kpis.leads_ativos} leads)</p>
       <div style="display:grid;grid-template-columns:160px 1fr 50px 80px;gap:8px;padding-bottom:4px;border-bottom:2px solid var(--section-border);margin-bottom:4px;">
         <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;">Etapa</div>
         <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;">Quantidade</div>
@@ -554,9 +554,9 @@ function renderFunnel(f, m) {
       <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Contagem acumulada — leads que passaram por cada etapa (inclui won/lost)</p>
       <p style="font-size:11px;color:var(--cosmos-blue-deep);margin-bottom:16px;font-weight:500;">
         <span class="resp-pill resp-mkt">MKT</span> Volume de Leads e MQLs &nbsp;
-        <span class="resp-pill resp-com">COM</span> Reunioes em diante
+        <span class="resp-pill resp-com">COM</span> Reuniões em diante
       </p>
-      <div class="funnel-row fh"><div>Etapa</div><div style="text-align:center">Atual</div><div style="text-align:center">Meta Mes</div><div style="text-align:center">Proporcional<br><span style="font-size:9px;opacity:0.7;">ate dia ${m.meta.day_of_month}</span></div><div>Progresso</div><div style="text-align:center">Status</div></div>
+      <div class="funnel-row fh"><div>Etapa</div><div style="text-align:center">Atual</div><div style="text-align:center">Meta Mês</div><div style="text-align:center">Proporcional<br><span style="font-size:9px;opacity:0.7;">até dia ${m.meta.day_of_month}</span></div><div>Progresso</div><div style="text-align:center">Status</div></div>
       ${metaRows}
     </div>`;
 }
@@ -600,13 +600,13 @@ function renderPerformance(mov, cohort, taxas, charts) {
   }).join('');
 
   el.innerHTML = `
-    <p class="eyebrow" style="color:var(--cosmos-blue-light);">Analise de Jornada</p>
-    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Movimentacao do Funil</h2>
-    <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">Nao apenas onde os leads estao — mas como estao se movendo entre as etapas</p>
+    <p class="eyebrow" style="color:var(--cosmos-blue-light);">Análise de Jornada</p>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Movimentação do Funil</h2>
+    <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">Não apenas onde os leads estão — mas como estão se movendo entre as etapas</p>
 
     <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
       <h3 style="margin-bottom:4px;">Fluxo da ${mov.semana_label}</h3>
-      <p style="font-size:12px;color:var(--gray-40);margin-bottom:20px;">Quantos leads entraram, avancaram de etapa, e sairam do funil neste periodo.</p>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:20px;">Quantos leads entraram, avançaram de etapa, e saíram do funil neste período.</p>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
         <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:16px;text-align:center;">
           <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-green);margin-bottom:6px;font-weight:500;">Entraram no Funil</div>
@@ -624,20 +624,20 @@ function renderPerformance(mov, cohort, taxas, charts) {
           <div style="font-size:12px;color:var(--gray-40);">leads mortos a remover</div>
         </div>
       </div>
-      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Detalhamento da movimentacao:</div>
-      <table class="evo-table"><thead><tr><th>Movimentacao</th><th>Quantidade</th><th>Detalhe</th></tr></thead><tbody>${detRows}</tbody></table>
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Detalhamento da movimentação:</div>
+      <table class="evo-table"><thead><tr><th>Movimentação</th><th>Quantidade</th><th>Detalhe</th></tr></thead><tbody>${detRows}</tbody></table>
       <div style="margin-top:16px;padding:12px 16px;background:rgba(94,151,228,0.06);border:1px solid rgba(94,151,228,0.12);border-radius:8px;font-size:13px;color:var(--gray-30);line-height:1.6;"><strong style="color:var(--cosmos-blue-light);">Leitura:</strong> ${mov.leitura}</div>
     </div>
 
     <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
       <h3 style="margin-bottom:4px;">Cohort: Jornada por Turma de Entrada</h3>
-      <p style="font-size:12px;color:var(--gray-40);margin-bottom:20px;">Cada linha acompanha uma "turma" de leads — desde quando entraram ate onde estao hoje.</p>
-      <table class="evo-table"><thead><tr><th>Turma</th><th>Entraram</th><th>→ Em Contato</th><th>→ MQL</th><th>→ Reuniao</th><th>→ Proposta</th><th>→ Venda</th><th>Lost</th></tr></thead><tbody>${cohortRows}</tbody></table>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:20px;">Cada linha acompanha uma "turma" de leads — desde quando entraram até onde estão hoje.</p>
+      <table class="evo-table"><thead><tr><th>Turma</th><th>Entraram</th><th>→ Em Contato</th><th>→ MQL</th><th>→ Reunião</th><th>→ Proposta</th><th>→ Venda</th><th>Lost</th></tr></thead><tbody>${cohortRows}</tbody></table>
     </div>
 
     <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
-      <h3 style="margin-bottom:4px;">Taxas de Conversao: Real vs Benchmark</h3>
-      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Quanto % dos leads avanca de uma etapa para a proxima.</p>
+      <h3 style="margin-bottom:4px;">Taxas de Conversão: Real vs Benchmark</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Quanto % dos leads avança de uma etapa para a próxima.</p>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">${taxasCards}</div>
       <div style="font-size:12px;color:var(--gray-40);line-height:1.5;"><strong style="color:var(--cosmos-blue-light);">Nota:</strong> ${taxas.nota}</div>
     </div>
@@ -663,7 +663,7 @@ function renderCompliance(comp) {
       <div><p class="eyebrow">Operacional</p><h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;">Playbook Compliance</h2></div>
       <div style="text-align:right;"><div style="font-size:48px;font-weight:800;letter-spacing:-0.025em;color:var(--cosmos-blue-deep);">${scoreGeral}</div><div style="font-size:12px;color:var(--muted-light);">score geral</div></div>
     </div>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:28px;">Aderencia ao playbook comercial | ${comp.nota}</p>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:28px;">Aderência ao playbook comercial | ${comp.nota}</p>
     <div class="compliance-grid">${cards}</div>`;
 }
 
@@ -689,15 +689,15 @@ function renderActions(acoes, pipeline, meta) {
 
   el.innerHTML = `
     <p class="eyebrow">Decisoes</p>
-    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px;">Acoes para Hoje — ${meta.period_end ? meta.period_end.split('-').reverse().join('/') : new Date().toLocaleDateString('pt-BR')}</h2>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px;">Ações para Hoje — ${meta.period_end ? meta.period_end.split('-').reverse().join('/') : new Date().toLocaleDateString('pt-BR')}</h2>
     <div class="glass-card" style="border-color:rgba(239,68,68,0.2);">
-      <h3 style="color:var(--alert-red-text);margin-bottom:12px;">Plano de Acao — Checklist</h3>
-      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Marque cada item apos execucao. Revisado no proximo PLRW.</p>
+      <h3 style="color:var(--alert-red-text);margin-bottom:12px;">Plano de Ação — Checklist</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Marque cada item após execução. Revisado no próximo PLRW.</p>
       <ul class="action-checklist">${actionItems}</ul>
     </div>
     ${pipelineHtml}
     <div class="charts-row">
-      <div class="chart-card"><h3>Distribuicao do Pipeline</h3><div class="chart-container"><canvas id="funnelChart"></canvas></div></div>
+      <div class="chart-card"><h3>Distribuição do Pipeline</h3><div class="chart-container"><canvas id="funnelChart"></canvas></div></div>
       <div class="chart-card"><h3>Decisoes Recomendadas</h3><div class="chart-container"><canvas id="decisionChart"></canvas></div></div>
     </div>`;
 }
@@ -717,24 +717,24 @@ function renderMarketing(mkt) {
 
   el.innerHTML = `
     <p class="eyebrow" style="color:#A78BFA;">Marketing</p>
-    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Novos Leads e Qualificacao</h2>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Novos Leads e Qualificação</h2>
     <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">Volume de leads entrando no pipeline — dados reais do Kommo, contagem mensal</p>
 
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">
       <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:18px;text-align:center;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Novos Leads no Mes</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Novos Leads no Mês</div>
         <div style="font-size:36px;font-weight:800;color:${statusColor};">${novosMes}</div>
-        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">deveriam ter: ~${deveriam} ate hoje</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">deveriam ter: ~${deveriam} até hoje</div>
         <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:${statusMes ? 'rgba(16,185,129,0.12);color:#34D399' : 'rgba(239,68,68,0.12);color:#F87171'};">${statusMes ? 'NA META' : 'ABAIXO DA META'}</div>
       </div>
       <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;text-align:center;">
         <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Meta Mensal</div>
         <div style="font-size:36px;font-weight:800;color:var(--cosmos-blue-mid);">${metaMes}</div>
-        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">${mkt.leads_meta_formula || metaMes + ' leads/mes'}</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">${mkt.leads_meta_formula || metaMes + ' leads/mês'}</div>
         <div style="font-size:11px;color:var(--gray-40);margin-top:8px;">~${mkt.meta_diaria}/dia</div>
       </div>
       <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:18px;text-align:center;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Projecao do Mes</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Projeção do Mês</div>
         <div style="font-size:36px;font-weight:800;color:${projecaoColor};">~${projecao}</div>
         <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">baseado no ritmo atual</div>
         <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:${projecao >= metaMes ? 'rgba(16,185,129,0.12);color:#34D399' : 'rgba(245,158,11,0.12);color:#FBBF24'};">${pctProjecao}% da meta</div>
@@ -747,7 +747,7 @@ function renderMarketing(mkt) {
     </div>
 
     <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
-      <h3 style="margin-bottom:16px;">Projecao: Novos Leads Acumulados vs Meta</h3>
+      <h3 style="margin-bottom:16px;">Projeção: Novos Leads Acumulados vs Meta</h3>
       <div style="height:220px;"><canvas id="marketingChart"></canvas></div>
     </div>`;
 }
@@ -874,10 +874,10 @@ function renderInteligencia(D) {
 
   el.innerHTML = `
     <p class="eyebrow">Data Intelligence</p>
-    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Metricas Avancadas</h2>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:28px;">Indicadores de saude do pipeline, velocidade e previsibilidade</p>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Métricas Avançadas</h2>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:28px;">Indicadores de saúde do pipeline, velocidade e previsibilidade</p>
 
-    <!-- ROW 1: KPIs de saude -->
+    <!-- ROW 1: KPIs de saúde -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">
       <div style="background:var(--gray-90);border:1px solid ${scoreColor(crm.pct_com_valor)};border-radius:12px;padding:18px;text-align:center;">
         <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-40);margin-bottom:6px;">CRM Health</div>
@@ -903,8 +903,8 @@ function renderInteligencia(D) {
 
     <!-- ROW 2: Tempo por etapa -->
     <div class="glass-card">
-      <h3>Tempo Medio por Etapa</h3>
-      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Quanto tempo os leads ficam em cada fase — identifica gargalos de velocidade</p>
+      <h3>Tempo Médio por Etapa</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Quanto tempo os leads ficam em cada fase — identifica gargalos de velocidade do funil</p>
       <div style="display:grid;grid-template-columns:repeat(${Object.values(te).filter(t=>t.count>0).length},1fr);gap:12px;">${tempoCards}</div>
     </div>
 
@@ -919,7 +919,7 @@ function renderInteligencia(D) {
       <!-- Forecast -->
       <div class="glass-card" style="margin-bottom:0;">
         <h3>Forecast de Receita</h3>
-        <p style="font-size:12px;color:var(--gray-40);margin-bottom:12px;">Previsao ponderada por probabilidade de cada etapa</p>
+        <p style="font-size:12px;color:var(--gray-40);margin-bottom:12px;">Previsão ponderada por probabilidade de cada etapa</p>
         <table class="evo-table"><thead><tr><th>Etapa</th><th style="text-align:right">Bruto</th><th style="text-align:center">Peso</th><th style="text-align:right">Ponderado</th></tr></thead><tbody>${fcRows}</tbody></table>
         <div style="margin-top:12px;padding:10px;background:rgba(94,151,228,0.08);border-radius:8px;text-align:center;">
           <span style="font-size:12px;color:var(--gray-40);">Forecast total:</span> <strong style="font-size:18px;color:var(--cosmos-blue-mid);">R$${(fc.ponderado||0).toLocaleString('pt-BR')}</strong>
@@ -932,14 +932,14 @@ function renderInteligencia(D) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
       <!-- Compliance -->
       <div class="glass-card" style="margin-bottom:0;">
-        <h3>Cadencia de Follow-up</h3>
-        <p style="font-size:12px;color:var(--gray-40);margin-bottom:12px;">Distribuicao dos leads por ultimo contato</p>
+        <h3>Cadência de Follow-up</h3>
+        <p style="font-size:12px;color:var(--gray-40);margin-bottom:12px;">Distribuição dos leads por último contato</p>
         ${compBars}
       </div>
       <!-- Win Rate por Ticket -->
       <div class="glass-card" style="margin-bottom:0;">
         <h3>Pipeline por Faixa de Ticket</h3>
-        <p style="font-size:12px;color:var(--gray-40);margin-bottom:12px;">Distribuicao de leads e vendas por valor</p>
+        <p style="font-size:12px;color:var(--gray-40);margin-bottom:12px;">Distribuição de leads e vendas por valor</p>
         <table class="evo-table"><thead><tr><th>Faixa</th><th style="text-align:center">Leads</th><th style="text-align:center">Won</th><th style="text-align:right">Valor</th></tr></thead><tbody>${wrtRows}</tbody></table>
       </div>
     </div>
@@ -962,7 +962,7 @@ function adaptData(r) {
   // Adapt alerts
   const alerts = (r.alerts || []).map(a => ({
     type: a.tipo === 'danger' ? 'danger' : a.tipo === 'warning' ? 'warning' : 'info',
-    icon: a.tipo === 'danger' ? 'Urgente' : a.tipo === 'warning' ? 'Atencao' : 'Info',
+    icon: a.tipo === 'danger' ? 'Urgente' : a.tipo === 'warning' ? 'Atenção' : 'Info',
     message: a.msg, count: 0
   }));
 
@@ -989,7 +989,7 @@ function adaptData(r) {
     day_of_month: m.day_of_month || new Date().getDate(),
     days_in_month: m.days_in_month || 30,
     week_number: Math.ceil((m.day_of_month || 1) / 7),
-    week_day: ['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'][new Date().getDay()],
+    week_day: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][new Date().getDay()],
     month_name: m.month_name || 'Abril', year: m.year || 2026,
     client_name: m.client_name || 'Atacama Digital'
   };
@@ -1030,10 +1030,10 @@ function adaptData(r) {
     entraram: mov.entraram_hoje || mov.entraram || 0, avancaram: mov.avancaram || 0,
     recomendados_lost: leadsParaLost,
     detalhes: [
-      { descricao: '+ Novos leads no mes', qtd: '+' + (mov.entraram_mes || 0), cor: 'green', detalhe: '' },
+      { descricao: '+ Novos leads no mês', qtd: '+' + (mov.entraram_mes || 0), cor: 'green', detalhe: '' },
       { descricao: '+ Novos leads hoje', qtd: '+' + (mov.entraram_hoje || 0), cor: 'green', detalhe: '' },
-      { descricao: 'Avancaram de etapa', qtd: String(mov.avancaram || 0), cor: 'blue', detalhe: '' },
-      { descricao: 'Perdidos no mes', qtd: String(mov.lost_mes || 0), cor: 'red', detalhe: '' }
+      { descricao: 'Avançaram de etapa', qtd: String(mov.avancaram || 0), cor: 'blue', detalhe: '' },
+      { descricao: 'Perdidos no mês', qtd: String(mov.lost_mes || 0), cor: 'red', detalhe: '' }
     ],
     leitura: 'Dados gerados automaticamente pelo N8N.'
   };
@@ -1053,7 +1053,7 @@ function adaptData(r) {
 
   // Adapt compliance
   const compliance = {
-    score_geral: null, nota: 'Preenchimento automatico',
+    score_geral: null, nota: 'Preenchimento automático',
     categorias: (Array.isArray(r.compliance) ? r.compliance : []).map((c,i) => ({
       nome: c.item, peso: 25, score: c.status === 'ok' ? 100 : null,
       items: [{ texto: c.item, ok: c.status === 'ok' }]
@@ -1067,7 +1067,7 @@ function adaptData(r) {
   }));
 
   // Adapt pipeline_leads (now includes em_contato)
-  const groupLabels = { entrada:'Entrada', em_contato:'Em Contato', mql:'Qualificados (MQL)', reuniao:'Reuniao Agendada', proposta:'Proposta Enviada', aguardando:'Aguardando Pagamento' };
+  const groupLabels = { entrada:'Entrada', em_contato:'Em Contato', mql:'Qualificados (MQL)', reuniao:'Reunião Agendada', proposta:'Proposta Enviada', aguardando:'Aguardando Pagamento' };
   const groupBadge = { entrada:'default', em_contato:'default', mql:'purple', reuniao:'blue', proposta:'amber', aguardando:'green' };
   const groupOrder = ['aguardando','proposta','reuniao','mql','em_contato','entrada'];
   const pipeline_leads = { etapas: groupOrder.map(g => {
@@ -1076,7 +1076,7 @@ function adaptData(r) {
     return {
       nome: groupLabels[g] || g, badge_cor: groupBadge[g] || 'default',
       count: leads.length, valor: valor || null,
-      colunas: ['Lead','Valor','Dias','Tags','Cadencia','Decisao','Acao'],
+      colunas: ['Lead','Valor','Dias','Tags','Cadência','Decisão','Ação'],
       leads: leads.map(l => {
         const diasN = l.idade_dias >= 10 ? 'danger' : l.idade_dias >= 5 ? 'warn' : 'ok';
         const cadCor = l.cadencia === 'urgente' ? 'dead' : l.cadencia === 'acelerada' ? 'late' : l.cadencia === 'atrasada' ? 'late' : 'ok';
@@ -1091,7 +1091,7 @@ function adaptData(r) {
           tags: [{ texto: l.etapa?.split(' ').pop() || '', cor: 'default' }],
           cadencia: l.cadencia || 'normal', cadencia_cor: cadCor,
           decisao: decLabel, decisao_tipo: decTipo,
-          acao: l.decisao === 'perder_ou_reativar' ? 'Decidir: reativar ou Lost' : l.decisao === 'avancar' ? 'Follow-up urgente' : 'Cadencia normal'
+          acao: l.decisao === 'perder_ou_reativar' ? 'Decidir: reativar ou Lost' : l.decisao === 'avancar' ? 'Follow-up urgente' : 'Cadência normal'
         };
       })
     };
@@ -1150,7 +1150,7 @@ async function init() {
       fetch('./dashboard-data.json'),
       fetch('./client-config.json').catch(() => null)
     ]);
-    if (!dataResp.ok) throw new Error('Dados nao encontrados');
+    if (!dataResp.ok) throw new Error('Dados não encontrados');
     const raw = await dataResp.json();
     const config = configResp?.ok ? await configResp.json() : null;
 
@@ -1175,7 +1175,7 @@ async function init() {
 
     document.title = `Pipeline Review | ${D.meta.client_name || 'Dashboard'}`;
   } catch (err) {
-    document.getElementById('loading').innerHTML = `<div class="error-state"><div style="font-size:24px;margin-bottom:8px;">Erro ao carregar dados</div><div style="color:var(--gray-40);font-size:13px;">${err.message}<br>Verifique se dashboard-data.json existe no mesmo diretorio.</div></div>`;
+    document.getElementById('loading').innerHTML = `<div class="error-state"><div style="font-size:24px;margin-bottom:8px;">Erro ao carregar dados</div><div style="color:var(--gray-40);font-size:13px;">${err.message}<br>Verifique se dashboard-data.json existe no mesmo diretório.</div></div>`;
   }
 }
 

@@ -131,7 +131,7 @@
   .resp-mkt { background: rgba(139,92,246,0.12); color: #A78BFA; }
   .resp-com { background: rgba(59,130,246,0.12); color: #60A5FA; }
 
-  .funnel-row { display: grid; grid-template-columns: 160px 90px 70px 70px 70px 1fr 80px; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--section-border); font-size: 13px; }
+  .funnel-row { display: grid; grid-template-columns: 160px 70px 70px 70px 1fr 80px; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--section-border); font-size: 13px; }
   .funnel-row:last-child { border-bottom: none; }
   .funnel-row.fh { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 500; padding-bottom: 8px; }
   .funnel-row .sn { font-weight: 600; color: var(--text-primary); }
@@ -283,7 +283,7 @@
     .status-grid { grid-template-columns: repeat(2, 1fr); }
     .section-inner { padding: 0 20px; }
     .hero-content { padding: 32px 20px; }
-    .funnel-row { grid-template-columns: 120px 70px 50px 50px 50px 1fr 60px; font-size: 11px; }
+    .funnel-row { grid-template-columns: 120px 50px 50px 50px 1fr 60px; font-size: 11px; }
   }
   @media (max-width: 768px) {
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -411,9 +411,18 @@ function fmt(n) { return n == null ? '—' : n.toLocaleString('pt-BR'); }
 function fmtR(n) { return n == null ? '—' : n >= 1000 ? 'R$' + (n/1000).toFixed(1).replace('.', ',') + 'k' : 'R$' + fmt(n); }
 
 function renderHero(m, config) {
-  const dt = new Date(m.generated_at);
-  const h = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
-  document.getElementById('hero-info').innerHTML = `<strong>Periodo:</strong> ${m.period_start.split('-').reverse().join('/')} a ${m.period_end.split('-').reverse().join('/')} (Dia ${m.day_of_month} de ${m.days_in_month}) &nbsp;|&nbsp; Semana ${String(m.week_number).padStart(2,'0')} &nbsp;|&nbsp; ${m.week_day} &nbsp;|&nbsp; <span style="color:var(--chart-amber);">Atualizado as ${h}</span>`;
+  const genAt = m.generated_at || '';
+  // Parse "2026-04-07 15:52:56 BRT" or ISO format
+  let h = '--:--';
+  if (genAt.includes('BRT')) {
+    h = genAt.split(' ')[1]?.substring(0, 5) || '--:--';
+  } else {
+    const dt = new Date(genAt);
+    if (!isNaN(dt)) h = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+  }
+  const startDate = m.period_start ? m.period_start.split('-').reverse().join('/') : '01/' + String(new Date().getMonth()+1).padStart(2,'0');
+  const endDate = m.period_end ? m.period_end.split('-').reverse().join('/') : new Date().toLocaleDateString('pt-BR');
+  document.getElementById('hero-info').innerHTML = `<strong>Periodo:</strong> ${startDate} a ${endDate} (Dia ${m.day_of_month} de ${m.days_in_month}) &nbsp;|&nbsp; Semana ${String(m.week_number).padStart(2,'0')} &nbsp;|&nbsp; ${m.week_day} &nbsp;|&nbsp; <span style="color:var(--chart-amber);">Atualizado as ${h}</span>`;
   document.getElementById('hero-coords').textContent = config?.coords || '';
 }
 
@@ -457,42 +466,98 @@ function renderKPIs(k) {
 
 function renderFunnel(f, m) {
   const el = document.getElementById('funnel-section');
-  const rows = f.etapas.map(e => {
-    const pill = e.resp === 'MKT' ? '<span class="resp-pill resp-mkt" style="margin-right:4px;">MKT</span>' : '<span class="resp-pill resp-com" style="margin-right:4px;">COM</span>';
-    const pct = Math.min(e.progresso_pct, 100);
-    const pctLabel = e.progresso_pct >= 999 ? '&#8734;' : e.progresso_pct + '%';
-    const pfClass = e.progresso_pct >= 100 ? 'pf-great' : e.progresso_pct >= 70 ? 'pf-ok' : e.progresso_pct >= 40 ? 'pf-behind' : 'pf-crit';
-    const fsClass = e.status === 'ACIMA' ? 'fs-great' : e.status === 'OK' ? 'fs-ok' : e.status === 'ATRAS' ? 'fs-behind' : 'fs-crit';
-    return `<div class="funnel-row"><div class="sn">${pill} ${e.nome}</div><div class="cr">${e.benchmark_pct}</div><div class="ac">${e.atual}</div><div class="nd">${e.meta_mes}</div><div class="nd-pro">~${e.proporcional}</div><div><div class="progress-track"><div class="progress-fill ${pfClass}" style="width:${pct}%">${pctLabel}</div></div></div><div class="funnel-status ${fsClass}">${e.status}</div></div>`;
+  const mes = f.mes || {};
+  const snap = f.snapshot || [];
+  const metas = f.metas_progresso || [];
+
+  // Helper for status color
+  const statusCol = (pct) => pct >= 100 ? 'var(--chart-green)' : pct >= 70 ? 'var(--chart-amber)' : 'var(--chart-red)';
+  const statusBg = (pct) => pct >= 100 ? 'rgba(16,185,129,0.08)' : pct >= 70 ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)';
+  const statusBorder = (pct) => pct >= 100 ? 'rgba(16,185,129,0.2)' : pct >= 70 ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)';
+
+  // 1) Month summary cards
+  const novosPct = mes.novos_meta > 0 ? Math.round(mes.novos_leads / mes.novos_meta * 100) : 0;
+  const wonPct = mes.won_meta > 0 ? Math.round(mes.won / mes.won_meta * 100) : 0;
+  const recPct = mes.receita_meta > 0 ? Math.round(mes.receita_won / mes.receita_meta * 100) : 0;
+
+  const mesCards = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
+    <div style="background:${statusBg(novosPct)};border:1px solid ${statusBorder(novosPct)};border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Novos Leads no Mes</div>
+      <div style="font-size:32px;font-weight:800;color:${statusCol(novosPct)};">${mes.novos_leads}</div>
+      <div style="font-size:12px;color:var(--text-muted);">meta: ${mes.novos_meta} | proporcional: ~${mes.novos_proporcional}</div>
+      <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${Math.min(novosPct, 100)}%;background:${statusCol(novosPct)};border-radius:2px;"></div></div>
+    </div>
+    <div style="background:${statusBg(wonPct)};border:1px solid ${statusBorder(wonPct)};border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Vendas Fechadas</div>
+      <div style="font-size:32px;font-weight:800;color:${statusCol(wonPct)};">${mes.won}</div>
+      <div style="font-size:12px;color:var(--text-muted);">meta: ${mes.won_meta}/mes</div>
+      <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${Math.min(wonPct, 100)}%;background:${statusCol(wonPct)};border-radius:2px;"></div></div>
+    </div>
+    <div style="background:${statusBg(recPct)};border:1px solid ${statusBorder(recPct)};border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Receita Fechada</div>
+      <div style="font-size:32px;font-weight:800;color:${statusCol(recPct)};">${fmtR(mes.receita_won)}</div>
+      <div style="font-size:12px;color:var(--text-muted);">meta: ${fmtR(mes.receita_meta)}</div>
+      <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="height:100%;width:${Math.min(recPct, 100)}%;background:${statusCol(recPct)};border-radius:2px;"></div></div>
+    </div>
+    <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;font-weight:500;">Perdidos no Mes</div>
+      <div style="font-size:32px;font-weight:800;color:var(--chart-red);">${mes.lost}</div>
+      <div style="font-size:12px;color:var(--text-muted);">valor: ${fmtR(mes.lost_valor)}</div>
+    </div>
+  </div>`;
+
+  // 2) Snapshot — where leads are NOW
+  const maxQtd = Math.max(...snap.map(s => s.qtd), 1);
+  const snapColors = { entrada: '#3A3A3A', em_contato: '#959595', mql: '#9E8FD0', reuniao: '#5E97E4', proposta: '#F59E0B', aguardando: '#10B981' };
+  const snapRows = snap.map(s => {
+    const barW = Math.max(Math.round(s.qtd / maxQtd * 100), 2);
+    const color = snapColors[s.etapa] || '#959595';
+    return `<div style="display:grid;grid-template-columns:160px 1fr 50px 80px;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--section-border);">
+      <div style="font-size:13px;font-weight:600;color:var(--text-primary);">${s.label}</div>
+      <div style="height:24px;background:rgba(0,0,0,0.04);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${barW}%;background:${color};border-radius:4px;display:flex;align-items:center;padding-left:8px;min-width:28px;"><span style="font-size:11px;font-weight:700;color:#fff;">${s.qtd}</span></div></div>
+      <div style="font-size:12px;color:var(--text-muted);text-align:center;">${s.pct_total}%</div>
+      <div style="font-size:12px;color:var(--text-muted);text-align:right;">${s.valor > 0 ? fmtR(s.valor) : '—'}</div>
+    </div>`;
   }).join('');
 
-  const vendaPct = f.meta_vendas > 0 ? Math.round((m.kpis.vendas_atual / f.meta_vendas) * 100) : 0;
-  const diagHtml = (f.diagnostico || []).map(d => `<strong>${d.area}:</strong> ${d.texto}`).join('<br>');
+  // 3) Metas progresso table
+  const metaRows = metas.map(mp => {
+    const pill = mp.resp === 'MKT' ? '<span class="resp-pill resp-mkt" style="margin-right:4px;">MKT</span>' : '<span class="resp-pill resp-com" style="margin-right:4px;">COM</span>';
+    const pct = Math.min(mp.pct, 100);
+    const pctLabel = mp.pct >= 999 ? '&#8734;' : mp.pct + '%';
+    const pfClass = mp.pct >= 100 ? 'pf-great' : mp.pct >= 70 ? 'pf-ok' : mp.pct >= 40 ? 'pf-behind' : 'pf-crit';
+    const fsClass = mp.status === 'ACIMA' ? 'fs-great' : mp.status === 'OK' ? 'fs-ok' : 'fs-crit';
+    return `<div class="funnel-row"><div class="sn">${pill} ${mp.label}</div><div class="ac">${mp.atual}</div><div class="nd">${mp.meta}</div><div class="nd-pro">~${mp.meta_prop}</div><div><div class="progress-track"><div class="progress-fill ${pfClass}" style="width:${pct}%">${pctLabel}</div></div></div><div class="funnel-status ${fsClass}">${mp.status}</div></div>`;
+  }).join('');
 
   el.innerHTML = `
-    <p class="eyebrow">Funil de Metas</p>
+    <p class="eyebrow">Funil Comercial</p>
     <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">${m.meta.month_name} ${m.meta.year} — Dia ${m.meta.day_of_month} de ${m.meta.days_in_month}</h2>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">Meta: ${f.meta_vendas} vendas/mes | Ticket benchmark: R$${fmt(f.ticket_benchmark)} | Revenue alvo: ${fmtR(f.revenue_alvo)}</p>
-    <p style="font-size:12px;color:var(--cosmos-blue-deep);margin-bottom:28px;font-weight:500;">
-      <span class="resp-pill resp-mkt">Marketing</span> Responsavel pelo volume de Leads e MQLs &nbsp;&nbsp;
-      <span class="resp-pill resp-com">Comercial</span> Responsavel de Reunioes em diante
-    </p>
-    <div class="glass-card" style="background:var(--white);border-color:var(--border-light);">
-      <div class="funnel-row fh"><div>Etapa</div><div style="text-align:center">Benchmark</div><div style="text-align:center">Atual</div><div style="text-align:center">Meta Mes</div><div style="text-align:center">Proporcional<br><span style="font-size:9px;opacity:0.7;">ate hoje</span></div><div>Progresso</div><div style="text-align:center">Status</div></div>
-      ${rows}
-      <div class="funnel-row" style="padding:14px 0;background:rgba(239,68,68,0.03);border-radius:8px;margin-top:4px;">
-        <div class="sn" style="font-size:16px;">Vendas (Won)</div><div class="cr">—</div><div class="ac" style="font-size:20px;color:var(--chart-red);">${m.kpis.vendas_atual}</div><div class="nd" style="font-size:20px;">${f.meta_vendas}</div><div class="nd-pro" style="font-size:14px;">~0</div><div><div class="progress-track" style="height:28px;"><div class="progress-fill pf-crit" style="width:${Math.max(vendaPct, 1)}%;min-width:40px;">${m.kpis.vendas_atual}/${f.meta_vendas}</div></div></div><div class="funnel-status fs-crit" style="font-size:14px;">${vendaPct}%</div>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">Meta: ${f.meta_vendas} vendas | Ticket: R$${fmt(f.ticket_benchmark)} | Revenue: ${fmtR(f.revenue_alvo)}</p>
+
+    ${mesCards}
+
+    <div class="glass-card" style="background:var(--white);border-color:var(--border-light);margin-bottom:20px;">
+      <h3 style="margin-bottom:4px;">Onde estao seus leads agora</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Snapshot do pipeline — posicao atual de cada lead ativo (${m.kpis.leads_ativos} leads)</p>
+      <div style="display:grid;grid-template-columns:160px 1fr 50px 80px;gap:8px;padding-bottom:4px;border-bottom:2px solid var(--section-border);margin-bottom:4px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;">Etapa</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;">Quantidade</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;text-align:center;">%</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;text-align:right;">Valor</div>
       </div>
-      <div class="funnel-summary">
-        <div class="fm"><div class="fl">Win Rate Alvo</div><div class="fv" style="color:var(--cosmos-blue-mid);">${f.win_rate_alvo}%</div><div class="fs">Propostas → Vendas</div></div>
-        <div class="fm"><div class="fl">Leads/Mes Necessarios</div><div class="fv" style="color:var(--chart-amber);">~${f.leads_meta_mes}</div><div class="fs">para ${f.meta_vendas} vendas a benchmark</div></div>
-        <div class="fm"><div class="fl">Leads/Mes Atual</div><div class="fv" style="color:var(--chart-red);">~${f.leads_semana_atual ? f.leads_semana_atual * 4 : 0}</div><div class="fs">${f.leads_semana_atual}/semana x 4</div></div>
-        <div class="fm"><div class="fl">Revenue Projetado</div><div class="fv" style="color:var(--chart-red);">${fmtR(f.revenue_projetado)}</div><div class="fs">meta: ${fmtR(f.revenue_alvo)}</div></div>
-      </div>
+      ${snapRows}
     </div>
-    <div style="padding:16px 20px;background:rgba(156,31,39,0.05);border:1px solid rgba(156,31,39,0.1);border-radius:12px;">
-      <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:var(--cosmos-red);">Diagnostico vs Benchmark</div>
-      <div style="font-size:13px;color:var(--muted-light);line-height:1.7;">${diagHtml}</div>
+
+    <div class="glass-card" style="background:var(--white);border-color:var(--border-light);">
+      <h3 style="margin-bottom:4px;">Progresso vs Metas</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Contagem acumulada — leads que passaram por cada etapa (inclui won/lost)</p>
+      <p style="font-size:11px;color:var(--cosmos-blue-deep);margin-bottom:16px;font-weight:500;">
+        <span class="resp-pill resp-mkt">MKT</span> Volume de Leads e MQLs &nbsp;
+        <span class="resp-pill resp-com">COM</span> Reunioes em diante
+      </p>
+      <div class="funnel-row fh"><div>Etapa</div><div style="text-align:center">Atual</div><div style="text-align:center">Meta Mes</div><div style="text-align:center">Proporcional<br><span style="font-size:9px;opacity:0.7;">ate dia ${m.meta.day_of_month}</span></div><div>Progresso</div><div style="text-align:center">Status</div></div>
+      ${metaRows}
     </div>`;
 }
 
@@ -624,7 +689,7 @@ function renderActions(acoes, pipeline, meta) {
 
   el.innerHTML = `
     <p class="eyebrow">Decisoes</p>
-    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px;">Acoes para Hoje — ${meta.period_start.split('-').reverse().join('/')}</h2>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px;">Acoes para Hoje — ${meta.period_end ? meta.period_end.split('-').reverse().join('/') : new Date().toLocaleDateString('pt-BR')}</h2>
     <div class="glass-card" style="border-color:rgba(239,68,68,0.2);">
       <h3 style="color:var(--alert-red-text);margin-bottom:12px;">Plano de Acao — Checklist</h3>
       <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Marque cada item apos execucao. Revisado no proximo PLRW.</p>
@@ -639,61 +704,46 @@ function renderActions(acoes, pipeline, meta) {
 
 function renderMarketing(mkt) {
   const el = document.getElementById('marketing-section');
-  const metaStatus = mkt.novos_leads_hoje >= mkt.meta_diaria;
-  const mqStatus = mkt.novos_mqls_hoje >= mkt.meta_mql_diaria;
-  const qualStatus = mkt.taxa_qualificacao >= mkt.taxa_qualificacao_benchmark;
+  const novosMes = mkt.novos_leads_mes || 0;
+  const metaMes = mkt.meta_mes || 143;
+  const deveriam = mkt.deveriam_ter || 0;
+  const pctMeta = deveriam > 0 ? Math.round(novosMes / deveriam * 100) : 0;
+  const projecao = mkt.projecao_mes || 0;
+  const pctProjecao = mkt.pct_projecao || (metaMes > 0 ? Math.round(projecao / metaMes * 100) : 0);
 
-  const leadsRows = mkt.leads_novos.map(l => `<tr>
-    <td class="mn"${l.qualificado ? ' style="color:var(--chart-green);"' : ''}>${l.nome}</td>
-    <td>${l.horario}</td>
-    <td${l.qualificado ? ' style="color:var(--chart-green);font-weight:600;"' : ''}>${l.etapa}</td>
-    <td>${l.origem ? '<span class="tag tag-blue" style="font-size:9px;">' + l.origem + '</span>' : '—'}</td>
-    <td style="color:${l.qualificado ? 'var(--chart-green);font-weight:700' : 'var(--gray-50)'};">${l.qualificado ? 'Sim' : 'Nao'}</td>
-  </tr>`).join('');
-
-  const diagHtml = mkt.diagnostico.map(d => `<strong>${d.area}:</strong> ${d.texto}`).join('<br>');
+  const statusMes = novosMes >= deveriam;
+  const statusColor = statusMes ? 'var(--chart-green)' : 'var(--chart-red)';
+  const projecaoColor = projecao >= metaMes ? 'var(--chart-green)' : 'var(--chart-amber)';
 
   el.innerHTML = `
     <p class="eyebrow" style="color:#A78BFA;">Marketing</p>
     <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Novos Leads e Qualificacao</h2>
-    <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">O marketing esta entregando novos leads no volume esperado? Estamos qualificando (MQL) no ritmo certo?</p>
+    <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">Volume de leads entrando no pipeline — dados reais do Kommo, contagem mensal</p>
 
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">
       <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:18px;text-align:center;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Novos Leads Hoje</div>
-        <div style="font-size:36px;font-weight:800;color:var(--chart-green);">${mkt.novos_leads_hoje}</div>
-        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">meta diaria: ~${mkt.meta_diaria}</div>
-        <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:rgba(16,185,129,0.12);color:#34D399;">${metaStatus ? '+' + (mkt.novos_leads_hoje - mkt.meta_diaria) + ' ACIMA DA META' : 'ABAIXO DA META'}</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Novos Leads no Mes</div>
+        <div style="font-size:36px;font-weight:800;color:${statusColor};">${novosMes}</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">deveriam ter: ~${deveriam} ate hoje</div>
+        <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:${statusMes ? 'rgba(16,185,129,0.12);color:#34D399' : 'rgba(239,68,68,0.12);color:#F87171'};">${statusMes ? 'NA META' : 'ABAIXO DA META'}</div>
       </div>
       <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;text-align:center;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Deveriamos Ter (Dia ${mkt.novos_leads_hoje > 0 ? '1' : '?'})</div>
-        <div style="font-size:36px;font-weight:800;color:var(--cosmos-blue-mid);">~${mkt.deveriam_ter}</div>
-        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">${mkt.leads_meta_formula}</div>
-        <div style="font-size:11px;color:var(--chart-green);margin-top:8px;font-weight:600;">Estamos ${mkt.pct_acima_meta}% acima</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Meta Mensal</div>
+        <div style="font-size:36px;font-weight:800;color:var(--cosmos-blue-mid);">${metaMes}</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">${mkt.leads_meta_formula || metaMes + ' leads/mes'}</div>
+        <div style="font-size:11px;color:var(--gray-40);margin-top:8px;">~${mkt.meta_diaria}/dia</div>
+      </div>
+      <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Projecao do Mes</div>
+        <div style="font-size:36px;font-weight:800;color:${projecaoColor};">~${projecao}</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">baseado no ritmo atual</div>
+        <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:${projecao >= metaMes ? 'rgba(16,185,129,0.12);color:#34D399' : 'rgba(245,158,11,0.12);color:#FBBF24'};">${pctProjecao}% da meta</div>
       </div>
       <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:18px;text-align:center;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Novos MQLs Hoje</div>
-        <div style="font-size:36px;font-weight:800;color:var(--chart-green);">${mkt.novos_mqls_hoje}</div>
-        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">meta diaria: ~${mkt.meta_mql_diaria}</div>
-        <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:rgba(16,185,129,0.12);color:#34D399;">${mqStatus ? 'NA META' : 'ABAIXO'}</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Novos Leads Hoje</div>
+        <div style="font-size:36px;font-weight:800;color:var(--white);">${mkt.novos_leads_hoje || 0}</div>
+        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">meta diaria: ~${mkt.meta_diaria}</div>
       </div>
-      <div style="background:rgba(26,26,26,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;text-align:center;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:6px;font-weight:500;">Taxa de Qualificacao</div>
-        <div style="font-size:36px;font-weight:800;color:var(--white);">${mkt.taxa_qualificacao}%</div>
-        <div style="font-size:12px;color:var(--gray-40);margin-top:2px;">benchmark: ${mkt.taxa_qualificacao_benchmark}%</div>
-        <div style="margin-top:8px;padding:3px 10px;border-radius:9999px;display:inline-block;font-size:10px;font-weight:700;background:${qualStatus ? 'rgba(16,185,129,0.12);color:#34D399' : 'rgba(245,158,11,0.12);color:#FBBF24'};">${qualStatus ? 'ACIMA' : 'ABAIXO — monitorar'}</div>
-      </div>
-    </div>
-
-    <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);margin-bottom:24px;">
-      <h3 style="margin-bottom:4px;">${mkt.novos_leads_hoje} Leads Novos — ${new Date().toLocaleDateString('pt-BR')}</h3>
-      <p style="font-size:12px;color:var(--gray-40);margin-bottom:12px;">Filtro: Criado Hoje no Kommo. Fonte real, nao estimativa.</p>
-      <table class="evo-table"><thead><tr><th>Lead</th><th>Horario</th><th>Etapa Atual</th><th>Origem</th><th>Qualificado?</th></tr></thead><tbody>${leadsRows}</tbody></table>
-    </div>
-
-    <div style="padding:16px 20px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.12);border-radius:12px;margin-bottom:24px;">
-      <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:#A78BFA;">Diagnostico de Marketing — Dados Reais</div>
-      <div style="font-size:13px;color:var(--gray-30);line-height:1.7;">${diagHtml}</div>
     </div>
 
     <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
@@ -902,6 +952,7 @@ function adaptData(r) {
 
   const k = r.kpis || {};
   const m = r.meta || {};
+  const funil = r.funil || {};
   const aguardando = (r.pipeline_leads?.aguardando || []);
   const valorAguardando = aguardando.reduce((s,l) => s + (l.valor||0), 0);
   const leadsAtivos = k.leads_ativos || 0;
@@ -912,70 +963,77 @@ function adaptData(r) {
   const alerts = (r.alerts || []).map(a => ({
     type: a.tipo === 'danger' ? 'danger' : a.tipo === 'warning' ? 'warning' : 'info',
     icon: a.tipo === 'danger' ? 'Urgente' : a.tipo === 'warning' ? 'Atencao' : 'Info',
-    message: a.msg,
-    count: 0
+    message: a.msg, count: 0
   }));
 
   // Adapt KPIs
   const kpis = {
-    leads_ativos: leadsAtivos,
-    valor_pipeline: k.valor_pipeline || 0,
+    leads_ativos: leadsAtivos, valor_pipeline: k.valor_pipeline || 0,
     valor_pipeline_real: k.valor_pipeline || 0,
-    ticket_medio: k.ticket_medio || 0,
-    ticket_benchmark: k.ticket_benchmark || 2500,
-    vendas_atual: k.vendas || 0,
-    vendas_meta: k.meta_vendas || 7,
-    mes_label: (m.month_name || 'abril') + ' ' + (m.year || 2026),
-    prox_fechamento_valor: valorAguardando,
-    prox_fechamento_label: 'aguardando pagamento',
-    leads_para_lost: leadsParaLost,
-    leads_para_lost_pct: lostPct,
+    ticket_medio: k.ticket_medio || 0, ticket_benchmark: k.ticket_benchmark || 2500,
+    vendas_atual: k.vendas || 0, vendas_meta: k.meta_vendas || 7,
+    mes_label: (m.month_name || 'Abril') + ' ' + (m.year || 2026),
+    prox_fechamento_valor: valorAguardando, prox_fechamento_label: 'aguardando pagamento',
+    leads_para_lost: leadsParaLost, leads_para_lost_pct: lostPct,
     pipeline_real_apos_limpeza: leadsAtivos - leadsParaLost,
-    pipeline_real_valor: k.valor_pipeline || 0
+    pipeline_real_valor: k.valor_pipeline || 0,
+    novos_mes: k.novos_mes || 0, lost_mes: k.lost_mes || 0,
+    leads_sem_valor: k.leads_sem_valor || 0, pct_sem_valor: k.pct_sem_valor || 0
   };
 
   // Adapt meta
   const meta = {
-    generated_at: m.generated_at ? new Date().toISOString() : new Date().toISOString(),
-    period_start: m.period_start || new Date().toISOString().slice(0,10).replace(/-\d\d$/, '-01'),
-    period_end: m.period_end || new Date().toISOString().slice(0,10),
+    generated_at: m.generated_at || new Date().toISOString(),
+    period_start: new Date().toISOString().slice(0,10).replace(/-\d\d$/, '-01'),
+    period_end: new Date().toISOString().slice(0,10),
     day_of_month: m.day_of_month || new Date().getDate(),
-    days_in_month: 30,
-    week_number: m.week_number || Math.ceil((m.day_of_month||1) / 7),
-    week_day: m.week_day || ['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'][new Date().getDay()],
-    month_name: m.month_name || 'Abril',
-    year: m.year || 2026,
+    days_in_month: m.days_in_month || 30,
+    week_number: Math.ceil((m.day_of_month || 1) / 7),
+    week_day: ['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'][new Date().getDay()],
+    month_name: m.month_name || 'Abril', year: m.year || 2026,
     client_name: m.client_name || 'Atacama Digital'
   };
 
-  // Adapt funnel_metas (handle both old and new format)
-  const rawFunnel = r.funnel_metas || [];
-  const funnelArray = Array.isArray(rawFunnel) ? rawFunnel : [];
-  const funnelEtapas = funnelArray.map(f => ({
-    nome: f.label || f.nome || '', resp: f.resp || 'COM',
-    benchmark_pct: f.benchmark_pct || '—',
-    atual: f.atual || 0, meta_mes: f.meta || f.meta_mes || 0,
-    proporcional: f.meta_proporcional || 0,
-    progresso_pct: f.progresso || 0,
-    status: f.status || 'ATRAS',
-    taxa_real: f.taxa_real || null
-  }));
+  // Adapt funil (NEW v2 format with snapshot + mes + metas_progresso)
+  const snap = Array.isArray(funil.snapshot) ? funil.snapshot : [];
+  const mes = funil.mes || {};
+  const metas = Array.isArray(funil.metas_progresso) ? funil.metas_progresso : [];
   const funnel_metas = {
+    snapshot: snap,
+    mes: {
+      novos_leads: mes.novos_leads || k.novos_mes || 0,
+      novos_meta: mes.novos_meta || 143,
+      novos_pct: mes.novos_pct || 0,
+      novos_proporcional: mes.novos_proporcional || 0,
+      won: mes.won || k.vendas || 0,
+      won_meta: mes.won_meta || k.meta_vendas || 7,
+      won_pct: mes.won_pct || 0,
+      receita_won: mes.receita_won || k.receita_fechada || 0,
+      receita_meta: mes.receita_meta || k.revenue_alvo || 17500,
+      receita_pct: mes.receita_pct || 0,
+      lost: mes.lost || k.lost_mes || 0,
+      lost_valor: mes.lost_valor || 0
+    },
+    metas_progresso: metas.map(mp => ({
+      etapa: mp.etapa || '', label: mp.label || '', atual: mp.atual || 0,
+      meta: mp.meta || 0, meta_prop: mp.meta_prop || 0,
+      pct: mp.pct || 0, status: mp.status || 'ATRAS', resp: mp.resp || 'COM'
+    })),
     meta_vendas: k.meta_vendas || 7, ticket_benchmark: k.ticket_benchmark || 2500,
-    revenue_alvo: k.revenue_alvo || 17500, leads_meta_mes: (r.marketing?.meta_mes) || 143,
-    leads_semana_atual: Math.round((r.marketing?.leads_novos_hoje || 0) * 5), revenue_projetado: k.receita_fechada || 0,
-    win_rate_alvo: 30, etapas: funnelEtapas, diagnostico: []
+    revenue_alvo: k.revenue_alvo || 17500
   };
 
   // Adapt movimentacao
   const mov = r.movimentacao || {};
   const movimentacao = {
     semana_label: 'Semana ' + String(meta.week_number).padStart(2,'0'),
-    entraram: mov.entraram || 0, avancaram: mov.avancaram || 0,
+    entraram: mov.entraram_hoje || mov.entraram || 0, avancaram: mov.avancaram || 0,
     recomendados_lost: leadsParaLost,
     detalhes: [
-      { descricao: '+ Novos leads hoje', qtd: '+' + (mov.entraram||0), cor: 'green', detalhe: '' },
-      { descricao: 'Avancaram de etapa', qtd: String(mov.avancaram||0), cor: 'blue', detalhe: '' }
+      { descricao: '+ Novos leads no mes', qtd: '+' + (mov.entraram_mes || 0), cor: 'green', detalhe: '' },
+      { descricao: '+ Novos leads hoje', qtd: '+' + (mov.entraram_hoje || 0), cor: 'green', detalhe: '' },
+      { descricao: 'Avancaram de etapa', qtd: String(mov.avancaram || 0), cor: 'blue', detalhe: '' },
+      { descricao: 'Perdidos no mes', qtd: String(mov.lost_mes || 0), cor: 'red', detalhe: '' }
     ],
     leitura: 'Dados gerados automaticamente pelo N8N.'
   };
@@ -1008,7 +1066,7 @@ function adaptData(r) {
     html: '<strong>' + a.acao + '</strong>'
   }));
 
-  // Adapt pipeline_leads
+  // Adapt pipeline_leads (now includes em_contato)
   const groupLabels = { entrada:'Entrada', em_contato:'Em Contato', mql:'Qualificados (MQL)', reuniao:'Reuniao Agendada', proposta:'Proposta Enviada', aguardando:'Aguardando Pagamento' };
   const groupBadge = { entrada:'default', em_contato:'default', mql:'purple', reuniao:'blue', proposta:'amber', aguardando:'green' };
   const groupOrder = ['aguardando','proposta','reuniao','mql','em_contato','entrada'];
@@ -1022,8 +1080,8 @@ function adaptData(r) {
       leads: leads.map(l => {
         const diasN = l.idade_dias >= 10 ? 'danger' : l.idade_dias >= 5 ? 'warn' : 'ok';
         const cadCor = l.cadencia === 'urgente' ? 'dead' : l.cadencia === 'acelerada' ? 'late' : l.cadencia === 'atrasada' ? 'late' : 'ok';
-        const decTipo = l.decisao === 'perder_ou_reativar' ? 'urgente' : l.decisao === 'avançar' || l.decisao === 'avancar' ? 'agir' : 'standby';
-        const decLabel = l.decisao === 'perder_ou_reativar' ? 'DECIDIR' : l.decisao === 'avançar' || l.decisao === 'avancar' ? 'AGIR' : 'STAND-BY';
+        const decTipo = l.decisao === 'perder_ou_reativar' ? 'urgente' : l.decisao === 'avancar' ? 'agir' : 'standby';
+        const decLabel = l.decisao === 'perder_ou_reativar' ? 'DECIDIR' : l.decisao === 'avancar' ? 'AGIR' : 'STAND-BY';
         return {
           nome: l.nome?.replace(/^Lead #\d+$/, 'Lead ' + l.id) || 'Sem nome',
           empresa: l.contato !== 'Sem contato' ? l.contato : null,
@@ -1033,22 +1091,36 @@ function adaptData(r) {
           tags: [{ texto: l.etapa?.split(' ').pop() || '', cor: 'default' }],
           cadencia: l.cadencia || 'normal', cadencia_cor: cadCor,
           decisao: decLabel, decisao_tipo: decTipo,
-          acao: l.decisao === 'perder_ou_reativar' ? 'Decidir: reativar ou Lost' : l.decisao === 'avançar' || l.decisao === 'avancar' ? 'Follow-up urgente' : 'Cadencia normal'
+          acao: l.decisao === 'perder_ou_reativar' ? 'Decidir: reativar ou Lost' : l.decisao === 'avancar' ? 'Follow-up urgente' : 'Cadencia normal'
         };
       })
     };
   }).filter(e => e.count > 0) };
 
-  // Adapt marketing
+  // Adapt marketing (now uses monthly data)
   const mkt = r.marketing || {};
+  const metaMes = mkt.meta_mes || 143;
+  const novosMes = mkt.leads_novos_mes || 0;
+  const metaDiaria = Math.round(metaMes / (m.days_in_month || 30));
+  const diaAtual = m.day_of_month || 1;
   const marketing = {
-    novos_leads_hoje: mkt.leads_novos_hoje || 0, meta_diaria: Math.round(143/30),
-    deveriam_ter: Math.round(143/30 * (m.day_of_month||1)),
-    leads_meta_formula: '143 / 30 dias', pct_acima_meta: 0,
-    novos_mqls_hoje: mkt.mqls_hoje || 0, meta_mql_diaria: 1,
+    novos_leads_hoje: mkt.leads_novos_hoje || 0,
+    novos_leads_mes: novosMes,
+    meta_diaria: metaDiaria,
+    deveriam_ter: Math.round(metaDiaria * diaAtual),
+    leads_meta_formula: metaMes + ' / ' + (m.days_in_month || 30) + ' dias',
+    pct_acima_meta: novosMes > 0 && metaDiaria * diaAtual > 0 ? Math.round((novosMes / (metaDiaria * diaAtual) - 1) * 100) : 0,
+    projecao_mes: mkt.projecao_mes || 0,
+    pct_projecao: mkt.pct_projecao || 0,
+    meta_mes: metaMes,
+    novos_mqls_hoje: 0, meta_mql_diaria: 1,
     taxa_qualificacao: 0, taxa_qualificacao_benchmark: 15,
     leads_novos: [], diagnostico: [],
-    projecao: { dias_labels: ['Dia 1'], meta_acumulada: [8], real_acumulado: [mkt.leads_novos_hoje || 0] }
+    projecao: {
+      dias_labels: Array.from({length: diaAtual}, (_, i) => 'Dia ' + (i + 1)),
+      meta_acumulada: Array.from({length: diaAtual}, (_, i) => metaDiaria * (i + 1)),
+      real_acumulado: Array.from({length: diaAtual}, (_, i) => i === diaAtual - 1 ? novosMes : Math.round(novosMes * (i + 1) / diaAtual))
+    }
   };
 
   // Adapt status_review
@@ -1059,11 +1131,12 @@ function adaptData(r) {
     top_problemas: (Array.isArray(sr.top_problemas) ? sr.top_problemas : []).map(p => ({ cor: 'red', html: '<strong>' + (p.nome||'').substring(0,40) + '</strong> — ' + (p.idade_dias||0) + 'd (' + (p.etapa||'') + ')' }))
   };
 
-  // Adapt charts
+  // Adapt charts (now 6 stages including em_contato)
   const ch = r.charts || {};
+  const chartColors6 = ['#3A3A3A','#959595','#9E8FD0','#5E97E4','#F59E0B','#10B981'];
   const charts = {
-    evo_chart: { labels: ch.funil?.labels || [], data: ch.funil?.datasets?.[0]?.data || [], colors: ['#959595','#5E97E4','#8B5CF6','#3B82F6','#F59E0B','#10B981'] },
-    value_chart: { labels: ch.pipeline_valor?.labels || [], data: ch.pipeline_valor?.datasets?.[0]?.data || [], colors: ['#3A3A3A','#3A3A3A','#9E8FD0','#5E97E4','#F59E0B','#10B981'] },
+    evo_chart: { labels: ch.funil?.labels || [], data: ch.funil?.datasets?.[0]?.data || [], colors: chartColors6 },
+    value_chart: { labels: ch.pipeline_valor?.labels || [], data: ch.pipeline_valor?.datasets?.[0]?.data || [], colors: chartColors6 },
     funnel_chart: { labels: ch.funil?.labels || [], data: ch.funil?.datasets?.[0]?.data || [] },
     decision_chart: { labels: ['Manter','Avancar','Decidir'], data: [leadsAtivos - (k.leads_urgentes||0) - leadsParaLost, k.leads_urgentes||0, leadsParaLost], colors: ['#959595','#3B82F6','#EF4444'] }
   };

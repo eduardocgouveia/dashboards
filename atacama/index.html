@@ -561,79 +561,99 @@ function renderFunnel(f, m) {
     </div>`;
 }
 
-function renderPerformance(mov, cohort, taxas, charts) {
+function renderPerformance(mov, lostMotivos, taxas, charts) {
   const el = document.getElementById('performance-section');
-  const corMap = { green: 'var(--chart-green)', blue: 'var(--chart-blue)', red: 'var(--chart-red)', muted: 'var(--gray-50)' };
-  const detRows = mov.detalhes.map(d => `<tr><td class="mn" style="color:${corMap[d.cor]}">${d.descricao}</td><td style="color:${corMap[d.cor]};font-weight:700;">${d.qtd}</td><td>${d.detalhe}</td></tr>`).join('');
-
-  const cohortRows = cohort.map(c => {
-    if (c.placeholder) return `<tr style="opacity:0.2;"><td class="mn">${c.turma}<br><span style="font-size:10px;">${c.subtitulo}</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`;
-    const style = c.destaque ? '' : 'style="border-bottom:1px solid rgba(255,255,255,0.06);"';
-    const nameColor = c.destaque ? 'var(--chart-green)' : 'var(--gray-50)';
-    const valColor = c.destaque ? 'var(--chart-green)' : 'var(--gray-50)';
-    const blueColor = c.destaque ? 'var(--chart-blue)' : 'var(--gray-50)';
-    return `<tr ${style}>
-      <td class="mn" style="color:${nameColor}">${c.turma}<br><span style="font-size:10px;color:var(--gray-60);">${c.subtitulo}</span></td>
-      <td style="color:${valColor};font-weight:${c.destaque?700:400};">${c.entraram != null ? (c.entraram === '~23' ? '~23' : c.entraram) : '—'}</td>
-      <td style="color:${blueColor};font-weight:${c.destaque?700:400};">${c.contato}${c.contato_pct ? ' <span style="font-size:10px;color:var(--gray-50);">(' + c.contato_pct + '%)</span>' : ''}</td>
-      <td style="color:${blueColor};font-weight:${c.destaque?700:400};">${c.mql}${c.mql_pct ? ' <span style="font-size:10px;color:var(--gray-50);">(' + c.mql_pct + '%)</span>' : ''}</td>
-      <td class="${c.reuniao === 0 ? 'dn' : ''}">${c.reuniao}</td>
-      <td class="${c.proposta === 0 ? 'dn' : ''}">${c.proposta}</td>
-      <td style="color:${c.venda === 0 ? 'var(--chart-red)' : ''}">${c.venda}</td>
-      <td style="color:${typeof c.lost === 'string' ? 'var(--chart-red)' : ''}">${c.lost}</td>
-    </tr>`;
-  }).join('');
 
   const taxasCards = taxas.taxas.map(t => {
     const realDisplay = t.real != null ? t.real + '%' : '—';
     const realColor = t.real != null ? 'var(--white)' : 'var(--gray-50)';
-    const statusColor = t.status_cor === 'amber' ? 'var(--chart-amber)' : 'var(--gray-50)';
-    const barColor = t.status_cor === 'amber' ? 'var(--chart-amber)' : 'var(--gray-50)';
+    const statusColor = t.status_cor === 'amber' ? 'var(--chart-amber)' : t.status_cor === 'green' ? 'var(--chart-green)' : 'var(--gray-50)';
+    const barColor = statusColor;
     return `<div style="background:rgba(26,26,26,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--cosmos-blue-light);margin-bottom:6px;">${t.nome}</div>
-      <div style="font-size:13px;color:var(--gray-30);margin-bottom:8px;line-height:1.4;">${t.descricao}</div>
       <div style="font-size:24px;font-weight:800;color:${realColor};">${realDisplay}</div>
       <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin:6px 0;overflow:hidden;"><div style="height:100%;width:${t.bar_pct}%;background:${barColor};border-radius:3px;"></div></div>
       <div style="font-size:11px;color:${statusColor};">${t.status_text}</div>
-      <div style="font-size:10px;color:var(--gray-50);margin-top:2px;">${t.nota}</div>
     </div>`;
   }).join('');
 
+  // Weekly movimentação table
+  const semanal = mov.semanal || [];
+  const weekRows = semanal.map(w => {
+    const isCurrent = w.semana === mov.semana_atual;
+    const rowStyle = isCurrent ? 'background:rgba(94,151,228,0.08);font-weight:700;' : '';
+    return `<tr style="${rowStyle}">
+      <td class="mn">${w.label}${isCurrent ? ' <span style="font-size:9px;color:var(--cosmos-blue-light);">← atual</span>' : ''}</td>
+      <td style="text-align:center;color:var(--chart-green);font-weight:700;">+${w.novos}</td>
+      <td style="text-align:center;color:var(--chart-blue);font-weight:700;">${w.avancaram}</td>
+      <td style="text-align:center;color:var(--chart-red);font-weight:700;">${w.perdidos}</td>
+    </tr>`;
+  }).join('');
+
+  // Totals
+  const totalNovos = semanal.reduce((s,w) => s + w.novos, 0);
+  const totalAvanc = semanal.reduce((s,w) => s + w.avancaram, 0);
+  const totalPerdi = semanal.reduce((s,w) => s + w.perdidos, 0);
+
+  // Lost reasons
+  const lostItems = (lostMotivos || []).map(l => {
+    const maxQtd = Math.max(...(lostMotivos||[]).map(x=>x.qtd), 1);
+    const pct = Math.round(l.qtd / maxQtd * 100);
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div style="width:160px;font-size:12px;color:var(--gray-30);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.motivo}</div>
+      <div style="flex:1;height:24px;background:rgba(239,68,68,0.08);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:rgba(239,68,68,0.6);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;min-width:28px;">${l.qtd}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const hasLost = (lostMotivos || []).length > 0;
+
   el.innerHTML = `
-    <p class="eyebrow" style="color:var(--cosmos-blue-light);">Análise de Jornada</p>
-    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Movimentação do Funil</h2>
-    <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">Não apenas onde os leads estão — mas como estão se movendo entre as etapas</p>
+    <p class="eyebrow" style="color:var(--cosmos-blue-light);">Movimentação</p>
+    <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Fluxo do Funil</h2>
+    <p style="font-size:14px;color:var(--cosmos-blue-light);opacity:0.7;margin-bottom:28px;">Quantos entraram, evoluíram e saíram — semana a semana</p>
 
     <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
-      <h3 style="margin-bottom:4px;">Fluxo da ${mov.semana_label}</h3>
-      <p style="font-size:12px;color:var(--gray-40);margin-bottom:20px;">Quantos leads entraram, avançaram de etapa, e saíram do funil neste período.</p>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+      <h3 style="margin-bottom:4px;">Movimentação Semanal</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Cada semana = 7 dias do mês. Sem 01 = dias 01–07, Sem 02 = dias 08–14, etc.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;">
         <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-green);margin-bottom:6px;font-weight:500;">Entraram no Funil</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-green);margin-bottom:6px;font-weight:500;">Entraram no Mês</div>
           <div style="font-size:36px;font-weight:800;color:var(--chart-green);">${mov.entraram}</div>
-          <div style="font-size:12px;color:var(--gray-40);">leads novos criados hoje</div>
+          <div style="font-size:12px;color:var(--gray-40);">+${mov.entraram_hoje} hoje</div>
         </div>
         <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-blue);margin-bottom:6px;font-weight:500;">Avancaram de Etapa</div>
-          <div style="font-size:36px;font-weight:800;color:var(--chart-blue);">${mov.avancaram}</div>
-          <div style="font-size:12px;color:var(--gray-40);">leads que mudaram de fase</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-blue);margin-bottom:6px;font-weight:500;">Avançaram de Etapa</div>
+          <div style="font-size:36px;font-weight:800;color:var(--chart-blue);">${totalAvanc}</div>
+          <div style="font-size:12px;color:var(--gray-40);">mudanças de fase no mês</div>
         </div>
         <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-red);margin-bottom:6px;font-weight:500;">Recomendados para Lost</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-red);margin-bottom:6px;font-weight:500;">Perdidos no Mês</div>
+          <div style="font-size:36px;font-weight:800;color:var(--chart-red);">${mov.lost_mes}</div>
+          <div style="font-size:12px;color:var(--gray-40);">leads marcados como lost</div>
+        </div>
+        <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--chart-red);margin-bottom:6px;font-weight:500;">Recomendados p/ Lost</div>
           <div style="font-size:36px;font-weight:800;color:var(--chart-red);">${mov.recomendados_lost}</div>
           <div style="font-size:12px;color:var(--gray-40);">leads mortos a remover</div>
         </div>
       </div>
-      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Detalhamento da movimentação:</div>
-      <table class="evo-table"><thead><tr><th>Movimentação</th><th>Quantidade</th><th>Detalhe</th></tr></thead><tbody>${detRows}</tbody></table>
-      <div style="margin-top:16px;padding:12px 16px;background:rgba(94,151,228,0.06);border:1px solid rgba(94,151,228,0.12);border-radius:8px;font-size:13px;color:var(--gray-30);line-height:1.6;"><strong style="color:var(--cosmos-blue-light);">Leitura:</strong> ${mov.leitura}</div>
+      <table class="evo-table"><thead><tr><th>Semana</th><th style="text-align:center;color:var(--chart-green);">+ Novos</th><th style="text-align:center;color:var(--chart-blue);">Avançaram</th><th style="text-align:center;color:var(--chart-red);">Perdidos</th></tr></thead>
+      <tbody>${weekRows}
+        <tr style="border-top:2px solid rgba(255,255,255,0.15);font-weight:800;">
+          <td class="mn">TOTAL</td>
+          <td style="text-align:center;color:var(--chart-green);">+${totalNovos}</td>
+          <td style="text-align:center;color:var(--chart-blue);">${totalAvanc}</td>
+          <td style="text-align:center;color:var(--chart-red);">${totalPerdi}</td>
+        </tr>
+      </tbody></table>
     </div>
 
-    <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
-      <h3 style="margin-bottom:4px;">Cohort: Jornada por Turma de Entrada</h3>
-      <p style="font-size:12px;color:var(--gray-40);margin-bottom:20px;">Cada linha acompanha uma "turma" de leads — desde quando entraram até onde estão hoje.</p>
-      <table class="evo-table"><thead><tr><th>Turma</th><th>Entraram</th><th>→ Em Contato</th><th>→ MQL</th><th>→ Reunião</th><th>→ Proposta</th><th>→ Venda</th><th>Lost</th></tr></thead><tbody>${cohortRows}</tbody></table>
-    </div>
+    ${hasLost ? `<div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
+      <h3 style="margin-bottom:4px;">Motivos de Perda (Lost)</h3>
+      <p style="font-size:12px;color:var(--gray-40);margin-bottom:16px;">Por que os leads foram marcados como perdidos este mês</p>
+      ${lostItems}
+    </div>` : ''}
 
     <div class="glass-card" style="background:rgba(26,26,26,0.5);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);">
       <h3 style="margin-bottom:4px;">Taxas de Conversão: Real vs Benchmark</h3>
@@ -643,8 +663,7 @@ function renderPerformance(mov, cohort, taxas, charts) {
     </div>
 
     <div class="charts-row">
-      <div class="chart-card" style="background:rgba(26,26,26,0.5);border-color:rgba(255,255,255,0.08);"><h3>Leads Novos de Abril: Onde Estao Hoje</h3><div class="chart-container"><canvas id="evoChart"></canvas></div></div>
-      <div class="chart-card" style="background:rgba(26,26,26,0.5);border-color:rgba(255,255,255,0.08);"><h3>Pipeline Total: Valor por Etapa</h3><div class="chart-container"><canvas id="valueChart"></canvas></div></div>
+      <div class="chart-card" style="background:rgba(26,26,26,0.5);border-color:rgba(255,255,255,0.08);"><h3>Leads Ativos: Onde Estão Hoje</h3><div class="chart-container"><canvas id="evoChart"></canvas></div></div>
     </div>`;
 }
 
@@ -675,20 +694,25 @@ function renderActions(acoes, pipeline, meta) {
     const valorLabel = etapa.valor ? fmtR(etapa.valor) : '';
     const headerCols = etapa.colunas.map(c => `<th>${c}</th>`).join('');
     const rows = etapa.leads.map(l => {
-      const nameCell = `<td><div class="lead-name">${l.nome}</div>${l.empresa ? '<div class="lead-company">' + l.empresa + '</div>' : ''}${l.telefone ? '<div class="lead-phone">' + l.telefone + '</div>' : ''}</td>`;
-      const valCell = l.valor ? `<td><strong class="${l.valor_cor ? 'v-' + l.valor_cor : ''}">${l.valor}</strong></td>` : (l.data !== undefined ? `<td>${l.data}</td>` : '<td>—</td>');
+      const nameCell = `<td><div class="lead-name">${l.nome}</div>${l.empresa ? '<div class="lead-company">' + l.empresa + '</div>' : ''}</td>`;
       const daysCell = `<td><span class="days-badge days-${l.dias_nivel}">${l.dias}d</span></td>`;
-      const tagsCell = `<td>${l.tags.map(t => `<span class="tag${t.cor !== 'default' ? ' tag-' + t.cor : ''}">${t.texto}</span>`).join('')}</td>`;
       const cadCell = `<td><div class="cadence-status"><span class="cadence-dot c-${l.cadencia_cor}"></span> ${l.cadencia}</div></td>`;
-      const decCell = `<td><span class="decision d-${l.decisao_tipo}">${l.decisao}</span></td>`;
       const actCell = `<td class="action-text">${l.acao}</td>`;
+      if (l.is_entrada) {
+        const contactCell = `<td>${l.empresa || '—'}</td>`;
+        const ucCell = `<td><span class="days-badge days-${l.ultimo_contato_cor}">${l.ultimo_contato}</span></td>`;
+        return `<tr>${nameCell}${contactCell}${daysCell}${ucCell}${cadCell}${actCell}</tr>`;
+      }
+      const valCell = l.valor ? `<td><strong class="${l.valor_cor ? 'v-' + l.valor_cor : ''}">${l.valor}</strong></td>` : '<td>—</td>';
+      const tagsCell = `<td>${l.tags.map(t => `<span class="tag${t.cor !== 'default' ? ' tag-' + t.cor : ''}">${t.texto}</span>`).join('')}</td>`;
+      const decCell = `<td><span class="decision d-${l.decisao_tipo}">${l.decisao}</span></td>`;
       return `<tr>${nameCell}${valCell}${daysCell}${tagsCell}${cadCell}${decCell}${actCell}</tr>`;
     }).join('');
     return `<div id="${etapa === pipeline.etapas[0] ? 'pipeline' : ''}" style="margin-bottom:28px;"><div class="sec-header"><div class="sec-title">${etapa.nome} <span class="badge badge-${etapa.badge_cor}">${etapa.count} leads</span>${valorLabel ? ' <span class="badge badge-' + etapa.badge_cor + '">' + valorLabel + '</span>' : ''}</div></div><table class="lead-table"><thead><tr>${headerCols}</tr></thead><tbody>${rows}</tbody></table></div>`;
   }).join('');
 
   el.innerHTML = `
-    <p class="eyebrow">Decisoes</p>
+    <p class="eyebrow">Decisões</p>
     <h2 style="font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px;">Ações para Hoje — ${meta.period_end ? meta.period_end.split('-').reverse().join('/') : new Date().toLocaleDateString('pt-BR')}</h2>
     <div class="glass-card" style="border-color:rgba(239,68,68,0.2);">
       <h3 style="color:var(--alert-red-text);margin-bottom:12px;">Plano de Ação — Checklist</h3>
@@ -698,7 +722,7 @@ function renderActions(acoes, pipeline, meta) {
     ${pipelineHtml}
     <div class="charts-row">
       <div class="chart-card"><h3>Distribuição do Pipeline</h3><div class="chart-container"><canvas id="funnelChart"></canvas></div></div>
-      <div class="chart-card"><h3>Decisoes Recomendadas</h3><div class="chart-container"><canvas id="decisionChart"></canvas></div></div>
+      <div class="chart-card"><h3>Decisões Recomendadas</h3><div class="chart-container"><canvas id="decisionChart"></canvas></div></div>
     </div>`;
 }
 
@@ -789,12 +813,6 @@ function renderCharts(charts, mkt) {
     type: 'bar',
     data: { labels: charts.evo_chart.labels, datasets: [{ label: 'Leads de Abril', data: charts.evo_chart.data, backgroundColor: charts.evo_chart.colors, borderRadius: 4 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#C4C4C4', font: { size: 11 } } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6B6B6B', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#C4C4C4', font: { size: 11 } } } } }
-  });
-
-  new Chart(document.getElementById('valueChart'), {
-    type: 'bar',
-    data: { labels: charts.value_chart.labels, datasets: [{ label: 'Valor (R$)', data: charts.value_chart.data, backgroundColor: charts.value_chart.colors, borderRadius: 4 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6B6B6B', callback: v => 'R$' + (v/1000).toFixed(0) + 'k' } }, x: { grid: { display: false }, ticks: { color: '#6B6B6B', font: { size: 10 } } } } }
   });
 
   new Chart(document.getElementById('funnelChart'), {
@@ -1027,8 +1045,12 @@ function adaptData(r) {
   const mov = r.movimentacao || {};
   const movimentacao = {
     semana_label: 'Semana ' + String(meta.week_number).padStart(2,'0'),
-    entraram: mov.entraram_hoje || mov.entraram || 0, avancaram: mov.avancaram || 0,
+    entraram: mov.entraram_mes || 0, avancaram: mov.avancaram || 0,
+    entraram_hoje: mov.entraram_hoje || 0,
     recomendados_lost: leadsParaLost,
+    lost_mes: mov.lost_mes || 0,
+    semanal: mov.semanal || [],
+    semana_atual: mov.semana_atual || 1,
     detalhes: [
       { descricao: '+ Novos leads no mês', qtd: '+' + (mov.entraram_mes || 0), cor: 'green', detalhe: '' },
       { descricao: '+ Novos leads hoje', qtd: '+' + (mov.entraram_hoje || 0), cor: 'green', detalhe: '' },
@@ -1037,6 +1059,7 @@ function adaptData(r) {
     ],
     leitura: 'Dados gerados automaticamente pelo N8N.'
   };
+  const lost_motivos = r.lost_motivos || [];
 
   // Adapt taxas
   const rawTaxas = Array.isArray(r.taxas_conversao) ? r.taxas_conversao : [];
@@ -1076,12 +1099,15 @@ function adaptData(r) {
     return {
       nome: groupLabels[g] || g, badge_cor: groupBadge[g] || 'default',
       count: leads.length, valor: valor || null,
-      colunas: ['Lead','Valor','Dias','Tags','Cadência','Decisão','Ação'],
+      colunas: g === 'entrada' ? ['Lead','Contato','Dias','Último Contato','Cadência','Ação'] : ['Lead','Valor','Dias','Tags','Cadência','Decisão','Ação'],
       leads: leads.map(l => {
         const diasN = l.idade_dias >= 10 ? 'danger' : l.idade_dias >= 5 ? 'warn' : 'ok';
         const cadCor = l.cadencia === 'urgente' ? 'dead' : l.cadencia === 'acelerada' ? 'late' : l.cadencia === 'atrasada' ? 'late' : 'ok';
         const decTipo = l.decisao === 'perder_ou_reativar' ? 'urgente' : l.decisao === 'avancar' ? 'agir' : 'standby';
         const decLabel = l.decisao === 'perder_ou_reativar' ? 'DECIDIR' : l.decisao === 'avancar' ? 'AGIR' : 'STAND-BY';
+        const ucDias = l.ultimo_contato_dias != null ? l.ultimo_contato_dias : l.idade_dias || 0;
+        const ucLabel = ucDias === 0 ? 'Hoje' : ucDias === 1 ? 'Ontem' : ucDias + 'd atrás';
+        const ucCor = ucDias <= 1 ? 'ok' : ucDias <= 3 ? 'warn' : 'danger';
         return {
           nome: l.nome?.replace(/^Lead #\d+$/, 'Lead ' + l.id) || 'Sem nome',
           empresa: l.contato !== 'Sem contato' ? l.contato : null,
@@ -1091,7 +1117,9 @@ function adaptData(r) {
           tags: [{ texto: l.etapa?.split(' ').pop() || '', cor: 'default' }],
           cadencia: l.cadencia || 'normal', cadencia_cor: cadCor,
           decisao: decLabel, decisao_tipo: decTipo,
-          acao: l.decisao === 'perder_ou_reativar' ? 'Decidir: reativar ou Lost' : l.decisao === 'avancar' ? 'Follow-up urgente' : 'Cadência normal'
+          ultimo_contato: ucLabel, ultimo_contato_cor: ucCor,
+          acao: l.decisao === 'perder_ou_reativar' ? 'Decidir: reativar ou Lost' : l.decisao === 'avancar' ? 'Follow-up urgente' : 'Cadência normal',
+          is_entrada: g === 'entrada'
         };
       })
     };
@@ -1136,12 +1164,12 @@ function adaptData(r) {
   const chartColors6 = ['#3A3A3A','#959595','#9E8FD0','#5E97E4','#F59E0B','#10B981'];
   const charts = {
     evo_chart: { labels: ch.funil?.labels || [], data: ch.funil?.datasets?.[0]?.data || [], colors: chartColors6 },
-    value_chart: { labels: ch.pipeline_valor?.labels || [], data: ch.pipeline_valor?.datasets?.[0]?.data || [], colors: chartColors6 },
+    lost_chart: { labels: ch.lost_motivos?.labels || lost_motivos.map(l=>l.motivo), data: ch.lost_motivos?.datasets?.[0]?.data || lost_motivos.map(l=>l.qtd) },
     funnel_chart: { labels: ch.funil?.labels || [], data: ch.funil?.datasets?.[0]?.data || [] },
-    decision_chart: { labels: ['Manter','Avancar','Decidir'], data: [leadsAtivos - (k.leads_urgentes||0) - leadsParaLost, k.leads_urgentes||0, leadsParaLost], colors: ['#959595','#3B82F6','#EF4444'] }
+    decision_chart: { labels: ['Manter','Avançar','Decidir'], data: [leadsAtivos - (k.leads_urgentes||0) - leadsParaLost, k.leads_urgentes||0, leadsParaLost], colors: ['#959595','#3B82F6','#EF4444'] }
   };
 
-  return { meta, alerts, kpis, funnel_metas, movimentacao, cohort: [], taxas_conversao, compliance, acoes, pipeline_leads, marketing, status_review, charts };
+  return { meta, alerts, kpis, funnel_metas, movimentacao, lost_motivos, taxas_conversao, compliance, acoes, pipeline_leads, marketing, status_review, charts };
 }
 
 async function init() {
@@ -1164,7 +1192,7 @@ async function init() {
     renderAlerts(D.alerts);
     renderKPIs(D.kpis);
     renderFunnel(D.funnel_metas, D);
-    renderPerformance(D.movimentacao, D.cohort, D.taxas_conversao, D.charts);
+    renderPerformance(D.movimentacao, D.lost_motivos, D.taxas_conversao, D.charts);
     renderCompliance(D.compliance);
     renderActions(D.acoes, D.pipeline_leads, D.meta);
     renderMarketing(D.marketing);
